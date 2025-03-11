@@ -1,0 +1,38 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+::after,
+::before {
+  box-sizing: inherit;
+}
+
+body {
+  font-size: 16px;
+  font-family: "Jost", sans-serif;
+  margin: 0;
+  color: black;
+  background-color: white;
+}
+
+img {
+  max-width: 100%;
+}
+
+a {
+  text-decoration: none;
+}
+
+.map {
+  width: 100%;
+  height: 100vh;
+}
+
+/* удаление кнопок "Открыть в Яндекс картах", "Создать свою карту", а также удаление плашки с условиями пользования Яндекс */
+.ymaps-2-1-79-gotoymaps,
+.ymaps-2-1-79-gototech,
+.ymaps-2-1-79-gototaxi__container,
+.ymaps-2-1-79-copyright__content {
+  display: none !important;
+}
