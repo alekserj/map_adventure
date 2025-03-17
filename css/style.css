@@ -1,3 +1,11 @@
+/* удаление кнопок "Открыть в Яндекс картах", "Создать свою карту", а также удаление плашки с условиями пользования Яндекс */
+.ymaps-2-1-79-gotoymaps,
+.ymaps-2-1-79-gototech,
+.ymaps-2-1-79-gototaxi__container,
+.ymaps-2-1-79-copyright__content {
+  display: none !important;
+}
+
 html {
   box-sizing: border-box;
 }
@@ -10,7 +18,6 @@ html {
 
 body {
   font-size: 16px;
-  font-family: "Jost", sans-serif;
   margin: 0;
   color: black;
   background-color: white;
@@ -24,15 +31,88 @@ a {
   text-decoration: none;
 }
 
-.map {
+.view__map {
+  position: relative;
   width: 100%;
   height: 100vh;
 }
 
-/* удаление кнопок "Открыть в Яндекс картах", "Создать свою карту", а также удаление плашки с условиями пользования Яндекс */
-.ymaps-2-1-79-gotoymaps,
-.ymaps-2-1-79-gototech,
-.ymaps-2-1-79-gototaxi__container,
-.ymaps-2-1-79-copyright__content {
-  display: none !important;
+.view__menu-btn {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.view__img {
+  transform: rotate(45deg);
+}
+
+.view__menu-btn_burger {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-top: 10px;
+  margin-right: 20px;
+  padding: 0;
+  z-index: 1;
+}
+
+.view__menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  padding: 10px 20px 30px 40px;
+  width: 33.33%;
+  background-color: white;
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
+  box-shadow: 0px 0px 20px 0px #0000001f;
+  z-index: 2;
+  transform: translateY(-100%);
+  transition: transform 0.3s;
+}
+
+.menu-is-active {
+  transform: none;
+}
+
+.view__form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding-top: 20px;
+  width: 100%;
+}
+
+.view_input {
+  padding: 10px;
+  width: 100%;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+
+.choices {
+  margin: 0;
+  width: 100%;
+}
+
+#choices--selectCustom-item-choice-1 {
+  display: none;
+}
+
+.view__form-btn {
+  display: inline-block;
+  margin: 0;
+  padding: 15px 0;
+  width: 40%;
+  color: white;
+  background-color: black;
+  border: none;
+  border-radius: 15px;
 }

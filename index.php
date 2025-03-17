@@ -5,20 +5,87 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Версия 0.1.0</title>
     <link rel="stylesheet" href="/css/normalize.css" />
+    <link rel="stylesheet" href="/css/choices.min.css" />
     <link rel="stylesheet" href="/css/style.css" />
     <script
-      src="https://api-maps.yandex.ru/2.1/?apikey=ваш API-ключ&lang=ru_RU"
+      src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=d5ab4df7-e824-4704-8f48-be9d6f558514"
       type="text/javascript"
     ></script>
-    <script type="text/javascript">
+  </head>
+  <body>
+    <section class="view">
+      <button class="view__menu-btn view__menu-btn_burger" id="burger">
+        <img class="view__img" src="/img/close.svg" alt="открыть меню" />
+      </button>
+      <div class="view__menu" id="view-menu">
+        <button class="view__menu-btn" id="burger-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <form
+          class="view__form"
+          id="view-form"
+          
+        >
+          <h2 class="view__title">Добавить объект</h2>
+          <input
+            class="view_input"
+            type="text"
+            placeholder="Название"
+            name="object_name"
+            id = "object_name"
+          />
+          <input
+            class="view_input"
+            type="hidden"
+            id="coordinates1"
+            name="longitude"
+            id = "longitude"
+          />
+          <input
+            class="view_input"
+            type="hidden"
+            id="coordinates2"
+            name="latitude"
+            id = "latitude"
+          />
+          <input
+            class="view_input"
+            type="text"
+            id="address"
+            name="address"
+            id = "address"
+          />
+          <input
+            class="view_input"
+            type="hidden"
+            id="valueSelect"
+            name="select"
+          />
+          <!-- Категория достопремечательности -->
+          <select class="view_select" id="selectCustom" required>
+            <option>Выберите категорию достопремечательности</option>
+            <option value="Музеи">Музеи</option>
+            <option value="Культурные">Культурные</option>
+            <option value="Архитектурные">Архитектурные</option>
+            <option value="Природные">Природные</option>
+            <option value="Религиозные">Религиозные</option>
+          </select>
+          <!-- Категория достопремечательности -->
+          <button class="view__form-btn" type="submit" id="addObjectDB">
+            Добавить
+          </button>
+        </form>
+      </div>
+      <div class="view__map" id="map"></div>
+    </section>
+    <script>
       ymaps.ready(init);
       function init() {
         var myMap = new ymaps.Map("map", {
-          center: [51.73470896697555, 36.19070462924623],
-          zoom: 13,
+        center: [51.73470896697555, 36.19070462924623],
+        zoom: 13,
         });
 
         myMap.controls.remove("trafficControl"); //удаления плашки пробок
@@ -27,25 +94,37 @@
         myMap.controls.remove("rulerControl"); //удаление линейки
         //удаление кнопок "Открыть в Яндекс картах", "Создать свою карту" и "Доехать на такси", а также удаление плашки с условиями пользования Яндекс сделано через CSS
 
-
         var points = <?php echo json_encode($points); ?>;
 
-            points.forEach(function(point) {
-                var myPlacemark = new ymaps.Placemark(point.coordinates, {
-                    balloonContent: point.name // Название точки
-                }, {
-                    iconLayout: 'default#image',
-                    iconImageHref: '/img/point.svg',
-                    iconImageSize: [30, 42],
-                    iconImageOffset: [-3, -42]
+        points.forEach(function(point) {
+          var myPlacemark = new ymaps.Placemark(point.coordinates, {
+            balloonContent: point.name // Название точки
+            }, {
+                  iconLayout: 'default#image',
+                  iconImageHref: '/img/point.svg',
+                  iconImageSize: [30, 42],
+                  iconImageOffset: [-3, -42]
                 });
-
-                myMap.geoObjects.add(myPlacemark); // Добавление метки на карту
+              myMap.geoObjects.add(myPlacemark); // Добавление метки на карту
             });
+
+        document.getElementById("burger").addEventListener("click", function () {
+          addPlacemark(myMap);
+        });
       }
     </script>
-  </head>
-  <body>
-    <div class="map" id="map"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/addData.js"></script>
+    <script src="/js/addObject.js"></script>
+    <script src="/js/choices.min.js"></script>
+    <script src="/js/openMenu.js"></script>
+    <script src="/js/selectValue.js"></script>  
+    <script>
+      const element = document.querySelector("#selectCustom");
+      const choises = new Choices(element, {
+        searchEnabled: false,
+      });
+    </script>
   </body>
 </html>
+
