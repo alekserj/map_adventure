@@ -97,13 +97,36 @@
         var points = <?php echo json_encode($points); ?>;
 
         points.forEach(function(point) {
+          var content = `
+            <strong>Название:</strong> ${point.name}<br> 
+            <strong>Улица:</strong> ${point.street || 'Не указано'}<br> 
+            <strong>Категория:</strong> ${point.category || 'Не указано'} `;
+          
+            var iconHref = '/img/point.svg';
+            var iconSize = [40, 40];
+            var iconOffset = [-20, -40];
+            if (point.category === 'Религиозные') {
+                iconHref = '/img/religion.svg';
+            } else if (point.category === 'Культурные') {
+                iconHref = 'img/culture.svg';
+            } else if (point.category === 'Музеи') {
+                iconHref = 'img/museum.svg';
+            } else if (point.category === 'Природные') {
+                iconHref = 'img/park.svg';
+            } else if (point.category === 'Архитектурные') {
+                iconHref = 'img/architecture.svg';
+            } else {
+                iconSize = [30, 42];
+                iconOffset = [-15, -42];
+            } 
+
           var myPlacemark = new ymaps.Placemark(point.coordinates, {
-            balloonContent: point.name // Название точки
+            balloonContent: content,
             }, {
                   iconLayout: 'default#image',
-                  iconImageHref: '/img/point.svg',
-                  iconImageSize: [30, 42],
-                  iconImageOffset: [-3, -42]
+                  iconImageHref: iconHref,
+                  iconImageSize: iconSize,
+                  iconImageOffset: iconOffset
                 });
               myMap.geoObjects.add(myPlacemark); // Добавление метки на карту
             });

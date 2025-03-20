@@ -5,7 +5,7 @@ if ($mysqli->connect_error) {
     die("Ошибка подключения: " . $mysqli->connect_error);
 }
 
-$sql = "SELECT id, name, ST_AsText(geo) AS geo_text FROM points";
+$sql = "SELECT id, name, street, category, ST_AsText(geo) AS geo_text FROM points";
 $result = $mysqli->query($sql);
 
 $points = [];
@@ -19,6 +19,8 @@ if ($result->num_rows > 0) {
             $points[] = [
                 'id' => $row['id'],
                 'name' => $row['name'],
+                'street' => $row['street'],
+                'category' => $row['category'],
                 'coordinates' => [$latitude, $longitude] 
             ];
         }
