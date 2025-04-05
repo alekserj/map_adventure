@@ -170,11 +170,11 @@
               <h1 class="baloon__title">${point.name}</h1>
               <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
+              <p><strong>Описание:</strong> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab in accusamus velit consequuntur aperiam, nostrum est totam excepturi expedita reiciendis ut, fugit sapiente quam repellat asperiores! Quia nihil quo libero!</p> 
               <button class="baloon__btn">Добавить в маршрут</button>
               <button class="baloon__information-btn">Добавить информацию о объекте</button>
             <div>`
             ;
-          
             var iconHref = '/img/point.svg';
             var iconSize = [40, 40];
             var iconOffset = [-20, -40];
