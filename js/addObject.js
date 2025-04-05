@@ -33,7 +33,7 @@ function addPlacemark(map) {
 
   
   document
-    .getElementById("burger-close")
+    .getElementById("plus-close")
     .addEventListener("click", function () {
       if (myPlacemark) {
         map.geoObjects.remove(myPlacemark);

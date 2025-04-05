@@ -5,7 +5,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.1.0</title>
+    <title>Версия 0.1.3</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -21,11 +21,32 @@
   </head>
   <body>
     <section class="view">
-      <button class="view__menu-btn view__menu-btn_burger" id="burger">
-        <img class="view__img" src="/img/close.svg" alt="открыть меню" />
-      </button>
-      <div class="view__menu" id="view-menu">
-        <button class="view__menu-btn" id="burger-close">
+      <nav class="view__nav">
+        <ul class="view__list">
+          <li class="view__item">
+            <button class="view__add-object-menu-btn">
+              <img  src="/img/route2.svg" alt="маршрут" />
+            </button>
+          </li>
+          <li class="view__item">
+            <button class="view__add-object-menu-btn">
+              <img  src="/img/filter.svg" alt="фильтр" />
+            </button>
+          </li>
+          <li class="view__item">
+            <button class="view__add-object-menu-btn" id="plus">
+              <img class="view__add-object-menu-img" src="/img/close.svg" alt="добавить объект" />
+            </button>
+          </li>
+          <li class="view__item">
+            <button class="view__add-object-menu-btn" id="account">
+              <img src="/img/account.svg" alt="аккаунт" style="" />
+            </button>
+          </li>
+        </ul>
+      </nav>
+      <div class="view__add-object-menu" id="add-object-menu">
+        <button class="view__add-object-menu-btn" id="plus-close">
           <img src="/img/close.svg" alt="закрыть меню" />
         </button>
         <form
@@ -82,6 +103,40 @@
           </button>
         </form>
       </div>
+      <div class="view__account-menu" id="account-menu">
+        <button class="view__add-object-menu-btn" id="account-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <form
+          class="view__form"
+          id="account-form"
+        >
+          <h2 class="view__title">Войти в аккаунт</h2>
+          <input
+            class="view_input"
+            type="text"
+            placeholder="Логин"
+            name="account-login"
+            id = "account-login"
+          />
+          <div class="view__account-section">
+            <input
+              class="view_input"
+              type="password"
+              placeholder = "Пароль"
+              name="account-password"
+              id="account-password"
+            />
+          <button class="view__account-btn">Забыли пароль?</button>
+          </div>
+          <button class="view__form-btn" type="" id="">
+            Войти
+          </button>
+          <button class="view__form-btn view__form-btn_white" type="" id="">
+            Создать аккаунт
+          </button>
+        </form>
+      </div>
       <div class="view__map" id="map"></div>
     </section>
   </body>
@@ -112,7 +167,7 @@
               <div class="swiper-pagination"></div>
             </div>
             <div>
-              <h1>${point.name}</h1>
+              <h1 class="baloon__title">${point.name}</h1>
               <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
               <button class="baloon__btn">Добавить в маршрут</button>
@@ -166,7 +221,7 @@
               myMap.geoObjects.add(myPlacemark); // Добавление метки на карту
             });
 
-        document.getElementById("burger").addEventListener("click", function () {
+        document.getElementById("plus").addEventListener("click", function () {
           addPlacemark(myMap);
         });
       }
@@ -175,7 +230,8 @@
     <script src="/js/addData.js"></script>
     <script src="/js/addObject.js"></script>
     <script src="/js/choices.min.js"></script>
-    <script src="/js/openMenu.js"></script>
+    <script src="/js/openAddMenu.js"></script>
+    <script src="/js/openAccountMenu.js"></script>
     <script src="/js/selectValue.js"></script>  
     <script>
       const element = document.querySelector("#selectCustom");
