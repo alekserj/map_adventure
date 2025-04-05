@@ -39,7 +39,8 @@ function addPlacemark(map) {
         map.geoObjects.remove(myPlacemark);
         myPlacemark = null; 
         document.getElementById("address").textContent = ""; 
-        document.getElementById("coordinates").textContent = ""; 
+        document.getElementById("coordinates1").textContent = "";
+        document.getElementById("coordinates2").textContent = "";
       }
     });
 

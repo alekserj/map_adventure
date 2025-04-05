@@ -8,6 +8,11 @@
     <title>Версия 0.1.0</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <link rel="stylesheet" href="/css/style.css" />
     <script
       src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=d5ab4df7-e824-4704-8f48-be9d6f558514"
@@ -26,7 +31,6 @@
         <form
           class="view__form"
           id="view-form"
-          
         >
           <h2 class="view__title">Добавить объект</h2>
           <input
@@ -80,7 +84,8 @@
       </div>
       <div class="view__map" id="map"></div>
     </section>
-    <script>
+  </body>
+  <script>
       ymaps.ready(init);
       function init() {
         var myMap = new ymaps.Map("map", {
@@ -98,9 +103,22 @@
 
         points.forEach(function(point) {
           var content = `
-            <strong>Название:</strong> ${point.name}<br> 
-            <strong>Улица:</strong> ${point.street || 'Не указано'}<br> 
-            <strong>Категория:</strong> ${point.category || 'Не указано'} `;
+            <div class="swiper">
+              <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image: url(/img/hero_img.jpg)"></div>
+                <div class="swiper-slide" style="background-image: url(/img/hero_img2.jpg)"></div>
+                <div class="swiper-slide" style="background-image: url(/img/hero_img3.jpg)"></div>
+              </div>
+              <div class="swiper-pagination"></div>
+            </div>
+            <div>
+              <h1>${point.name}</h1>
+              <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
+              <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
+              <button class="baloon__btn">Добавить в маршрут</button>
+              <button class="baloon__information-btn">Добавить информацию о объекте</button>
+            <div>`
+            ;
           
             var iconHref = '/img/point.svg';
             var iconSize = [40, 40];
@@ -128,6 +146,23 @@
                   iconImageSize: iconSize,
                   iconImageOffset: iconOffset
                 });
+                myPlacemark.events.add('balloonopen', function() {
+                  const swiper = new Swiper('.swiper', {
+                    loop: true,
+                    pagination: {
+                      el: '.swiper-pagination',
+                    },
+                  });
+                  myPlacemark.swiperInstance = swiper;
+                });
+  
+                myPlacemark.events.add('balloonclose', function() {
+
+                if (myPlacemark.swiperInstance) {
+                  myPlacemark.swiperInstance.destroy();
+                  myPlacemark.swiperInstance = null;
+                }
+              });
               myMap.geoObjects.add(myPlacemark); // Добавление метки на карту
             });
 
@@ -148,6 +183,5 @@
         searchEnabled: false,
       });
     </script>
-  </body>
 </html>
 
