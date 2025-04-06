@@ -73,6 +73,7 @@ a {
   transform: rotate(45deg);
 }
 
+.view__route-menu,
 .view__add-object-menu,
 .view__account-menu,
 .view__add-information-menu {
