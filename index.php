@@ -24,7 +24,7 @@
       <nav class="view__nav">
         <ul class="view__list">
           <li class="view__item">
-            <button class="view__add-object-menu-btn">
+            <button class="view__add-object-menu-btn" id="route">
               <img  src="/img/route2.svg" alt="маршрут" />
             </button>
           </li>
@@ -45,6 +45,37 @@
           </li>
         </ul>
       </nav>
+
+
+
+      <div class="view__route-menu" id="route-menu">
+        <button class="view__route-menu-btn" id="route-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <form
+          class="view__form"
+          id="route-form"
+        >
+        <h2 class="view__title">Маршрут</h2>
+
+        <input class="view_input"
+        type="text"
+        placeholder="Откуда"
+        id="route-from" readonly />
+
+        <input class="view_input"
+        type="text"
+        placeholder="Куда"
+        id="route-to" readonly />
+
+        <label for="routeType">Тип маршрута:</label>
+        <select class="view_select choices" id="routeType" required>
+          <option value="auto">Автомобиль</option>
+          <option value="pedestrian">Пешком</option>
+          <option value="masstransit">Общественный транспорт</option>
+        </select>
+      </div>
+
       <div class="view__add-object-menu" id="add-object-menu">
         <button class="view__add-object-menu-btn" id="plus-close">
           <img src="/img/close.svg" alt="закрыть меню" />
@@ -103,6 +134,7 @@
           </button>
         </form>
       </div>
+
       <div class="view__account-menu" id="account-menu">
         <button class="view__add-object-menu-btn" id="account-menu-close">
           <img src="/img/close.svg" alt="закрыть меню" />
@@ -137,6 +169,7 @@
           </button>
         </form>
       </div>
+
       <div class="view__map" id="map"></div>
     </section>
   </body>
@@ -153,6 +186,8 @@
         myMap.controls.remove("fullscreenControl"); //удаление полноэкранного режима
         myMap.controls.remove("rulerControl"); //удаление линейки
         //удаление кнопок "Открыть в Яндекс картах", "Создать свою карту" и "Доехать на такси", а также удаление плашки с условиями пользования Яндекс сделано через CSS
+
+        setMapInstance(myMap);
 
         var points = <?php echo json_encode($points); ?>;
 
@@ -171,7 +206,7 @@
               <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
               <p><strong>Описание:</strong> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab in accusamus velit consequuntur aperiam, nostrum est totam excepturi expedita reiciendis ut, fugit sapiente quam repellat asperiores! Quia nihil quo libero!</p> 
-              <button class="baloon__btn">Добавить в маршрут</button>
+              <button class="baloon__btn" id ="toRoute";">Добавить в маршрут</button>
               <button class="baloon__information-btn">Добавить информацию о объекте</button>
             <div>`
             ;
@@ -209,6 +244,7 @@
                     },
                   });
                   myPlacemark.swiperInstance = swiper;
+                  attachRouteButtonHandler(point.coordinates);
                 });
   
                 myPlacemark.events.add('balloonclose', function() {
@@ -217,6 +253,8 @@
                   myPlacemark.swiperInstance.destroy();
                   myPlacemark.swiperInstance = null;
                 }
+
+            
               });
               myMap.geoObjects.add(myPlacemark); // Добавление метки на карту
             });
@@ -227,9 +265,11 @@
       }
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/routeHandler.js"></script>
     <script src="/js/addData.js"></script>
     <script src="/js/addObject.js"></script>
     <script src="/js/choices.min.js"></script>
+    <script src="/js/openRouteMenu.js"></script>
     <script src="/js/openAddMenu.js"></script>
     <script src="/js/openAccountMenu.js"></script>
     <script src="/js/selectValue.js"></script>  
