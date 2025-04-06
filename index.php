@@ -12,7 +12,12 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/simplebar@latest/dist/simplebar.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
     <link rel="stylesheet" href="/css/style.css" />
     <script
       src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=d5ab4df7-e824-4704-8f48-be9d6f558514"
@@ -45,6 +50,7 @@
           </li>
         </ul>
       </nav>
+
       <div class="view__add-object-menu" id="add-object-menu">
         <button class="view__add-object-menu-btn" id="plus-close">
           <img src="/img/close.svg" alt="закрыть меню" />
@@ -103,6 +109,40 @@
           </button>
         </form>
       </div>
+
+      <div class="view__add-information-menu" id="add-information-menu">
+        <button class="view__add-object-menu-btn" id="add-information-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <form
+          class="view__form"
+          id="add-information-menu-form"
+        >
+          <div class="customScroll" data-simplebar>
+            <textarea
+              class="view__textarea"
+              type="text"
+              placeholder="Описание"
+              name="object_id"
+              id = "object_id"
+            ></textarea>
+            <input 
+              type="file" 
+              id="fileInput" 
+              accept="image/*" 
+              multiple 
+              style="display: none;"
+            >
+            <button type="button" class="view__form-btn view__form-btn_add-img" id="addObjectInformationImg">
+            </button>
+            <ul class="view__picture-list" id="pictureList"></ul>
+          </div>
+          <button class="view__form-btn" type="submit" id="addObjectDB">
+            Добавить
+          </button>
+        </form>
+      </div>
+
       <div class="view__account-menu" id="account-menu">
         <button class="view__add-object-menu-btn" id="account-menu-close">
           <img src="/img/close.svg" alt="закрыть меню" />
@@ -137,6 +177,7 @@
           </button>
         </form>
       </div>
+
       <div class="view__map" id="map"></div>
     </section>
   </body>
@@ -172,8 +213,9 @@
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
               <p><strong>Описание:</strong> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab in accusamus velit consequuntur aperiam, nostrum est totam excepturi expedita reiciendis ut, fugit sapiente quam repellat asperiores! Quia nihil quo libero!</p> 
               <button class="baloon__btn">Добавить в маршрут</button>
-              <button class="baloon__information-btn">Добавить информацию о объекте</button>
-            <div>`
+              <button class="baloon__information-btn" id="addInformation">Добавить информацию о объекте</button>
+              <input type="hidden" value=${point.id} id="informationId"></input>
+            </div>`
             ;
             var iconHref = '/img/point.svg';
             var iconSize = [40, 40];
@@ -201,6 +243,7 @@
                   iconImageSize: iconSize,
                   iconImageOffset: iconOffset
                 });
+
                 myPlacemark.events.add('balloonopen', function() {
                   const swiper = new Swiper('.swiper', {
                     loop: true,
@@ -209,6 +252,10 @@
                     },
                   });
                   myPlacemark.swiperInstance = swiper;
+
+                  const script = document.createElement('script');
+                  script.src = '/js/addObjectInformation.js';
+                  document.body.appendChild(script);
                 });
   
                 myPlacemark.events.add('balloonclose', function() {
@@ -229,6 +276,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/addData.js"></script>
     <script src="/js/addObject.js"></script>
+    <script src="/js/addObjectPicture.js"></script>
     <script src="/js/choices.min.js"></script>
     <script src="/js/openAddMenu.js"></script>
     <script src="/js/openAccountMenu.js"></script>

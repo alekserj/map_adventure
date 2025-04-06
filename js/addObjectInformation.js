@@ -1,0 +1,18 @@
+document.querySelector("#addInformation").addEventListener("click", function () {
+    document.querySelector("#add-information-menu").classList.toggle("menu-is-active");
+    const title = document.createElement("h2")
+    title.classList.add("view__title")
+    title.innerHTML = `Добавить информацию о объекте <br> "${document.querySelector(".baloon__title").textContent}"`
+    const inputId = document.createElement("input")
+    inputId.type = "hidden"
+    inputId.name = "objectId"
+    inputId.value = document.getElementById("informationId").value
+    console.log(document.querySelector(".baloon__title").textContent)
+    document.querySelector("#add-information-menu-form").prepend(title)
+    document.querySelector("#add-information-menu-form").appendChild(inputId)
+    document.getElementById('pictureList').innerHTML = ""
+  });
+
+document.querySelector("#add-information-menu-close").addEventListener("click", function () {
+    document.querySelector("#add-information-menu").classList.toggle("menu-is-active");
+});
