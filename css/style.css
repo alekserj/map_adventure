@@ -74,7 +74,8 @@ a {
 }
 
 .view__add-object-menu,
-.view__account-menu {
+.view__account-menu,
+.view__add-information-menu {
   position: absolute;
   top: 0;
   right: 0;
@@ -96,6 +97,11 @@ a {
   transform: none;
 }
 
+.view__title {
+  margin: 0;
+  text-align: center;
+}
+
 .view__form {
   display: flex;
   flex-direction: column;
@@ -105,11 +111,18 @@ a {
   width: 100%;
 }
 
-.view_input {
+.view_input,
+.view__textarea {
   padding: 10px;
   width: 100%;
   border: 1px solid black;
   border-radius: 10px;
+}
+
+.view__textarea{
+  width: 98%;
+  height: 225px;
+  resize: none;
 }
 
 .view__account-section{
@@ -156,6 +169,18 @@ a {
   transition: background-color 0.3s, outline 0.3s, color 0.3s;
 }
 
+.view__form-btn_add-img{
+  margin-top: 20px;
+  margin-left: 5px;
+  width: 50px;
+  height: 50px;
+  background-image: url(../img/add_photo_white.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 25px 25px;
+  transition: background-image 0.3s
+}
+
 .view__form-btn_white{
   color: black;
   background-color: white;
@@ -192,6 +217,10 @@ a {
   color: white;
 }
 
+.view__form-btn_add-img:hover {
+  background-image: url(../img/add_photo_black.svg);
+}
+
 .view__form-btn:active,
 .baloon__btn:active{
   background-color: rgb(58, 58, 58);
@@ -199,4 +228,47 @@ a {
   color: white;
 }
 
+.view__form-btn_add-img:active {
+  background-image: url(../img/add_photo_white.svg);
+}
 
+.customScroll{
+  width: 100%;
+  height: 310px;
+}
+
+.view__picture-list{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  margin: 10px 0 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.view__picture-item{
+  display: flex;
+  justify-content: center;
+}
+
+.view__picture-group{
+  position: relative;
+  width: 75px;
+  height: 75px;
+}
+
+.view__picture-preview {
+  padding-bottom: 20px;
+  width: 75px;
+  height: 75px;
+}
+
+.view__picture-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+  width: 20px;
+}
