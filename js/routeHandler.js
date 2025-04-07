@@ -4,7 +4,6 @@ let mapInstance = null;
 function setMapInstance(map) {
     mapInstance = map;
     addRoutePanel(map);
-    setupRouteTypeChangeHandler();
 }
 
 // Добавление routePanel на карту
@@ -29,25 +28,37 @@ function addRoutePanel(map) {
     map.routePanelControl = routePanelControl;
 }
 
-// Обработчик изменения типа маршрута в форме
-function setupRouteTypeChangeHandler() {
-    const typeSelector = document.getElementById('routeType');
-    if (!typeSelector) return;
-
-    typeSelector.addEventListener('change', () => {
-        const value = typeSelector.value;
-
-        if (mapInstance && mapInstance.routePanelControl) {
-            mapInstance.routePanelControl.routePanel.options.set({
-                types: {
-                    auto: value === 'auto',
-                    pedestrian: value === 'pedestrian',
-                    masstransit: value === 'masstransit'
-                }
-            });
-        }
+// установка обработчика
+function setupRouteTypeButtons() {
+    const buttons = document.querySelectorAll('.route-btn');
+  
+    if (!buttons.length) {
+      console.log('Кнопки маршрута не найдены');
+      return;
+    }
+  
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.dataset.type;
+  
+        // Обновление маршрута на карте
+        mapInstance.routePanelControl.routePanel.options.set({
+          types: {
+            auto: type === 'auto',
+            pedestrian: type === 'pedestrian',
+            masstransit: type === 'masstransit'
+          }
+        });
+  
+        // Подсветка активной кнопки
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+  
+        console.log(`Тип маршрута установлен: ${type}`);
+      });
     });
-}
+  }
+
 
 // Строим маршрут по нажатию кнопки "Добавить в маршрут"
 function attachRouteButtonHandler(destinationCoords) {
@@ -76,21 +87,30 @@ function attachRouteButtonHandler(destinationCoords) {
     }, 100);
 }
 
-// Установка маршрута и заполнение полей формы
+
 function buildRoute(fromCoords, toCoords) {
     mapInstance.routePanelControl.routePanel.state.set({
         from: fromCoords,
         to: toCoords
     });
 
-    // Заполняем поля в форме
-    const fromInput = document.getElementById('route-from');
-    const toInput = document.getElementById('route-to');
+    // Обратное геокодирование для отображения адресов
+    ymaps.geocode(fromCoords).then(res => {
+        const address = res.geoObjects.get(0)?.getAddressLine() || fromCoords.join(', ');
+        const fromInput = document.getElementById('route-from');
+        if (fromInput) fromInput.value = address;
+    });
 
-    if (fromInput) fromInput.value = fromCoords.join(', ');
-    if (toInput) toInput.value = toCoords.join(', ');
+    ymaps.geocode(toCoords).then(res => {
+        const address = res.geoObjects.get(0)?.getAddressLine() || toCoords.join(', ');
+        const toInput = document.getElementById('route-to');
+        if (toInput) toInput.value = address;
+    });
 
-    // Показываем форму маршрута
-    const form = document.getElementById('route-form');
-    if (form) form.classList.remove('hidden');
+    // Показываем форму маршрута, если она скрыта
+    const menu = document.getElementById('route-menu');
+    if (menu && !menu.classList.contains('menu-is-active')) {
+        menu.classList.add('menu-is-active');
+    }
 }
+

@@ -201,3 +201,59 @@ a {
 }
 
 
+<<<<<<< Updated upstream
+=======
+.customScroll{
+  width: 100%;
+  height: 310px;
+}
+
+.view__picture-list{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  margin: 10px 0 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.view__picture-item{
+  display: flex;
+  justify-content: center;
+}
+
+.view__picture-group{
+  position: relative;
+  width: 75px;
+  height: 75px;
+}
+
+.view__picture-preview {
+  padding-bottom: 20px;
+  width: 75px;
+  height: 75px;
+}
+
+.view__picture-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+  width: 20px;
+}
+
+.route-btn {
+  padding: 8px 16px;
+  margin: 4px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.route-btn.active {
+  background-color: #4CAF50; /* зелёный */
+  color: white;
+}
+>>>>>>> Stashed changes
