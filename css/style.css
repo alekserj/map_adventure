@@ -273,3 +273,18 @@ a {
   height: 20px;
   width: 20px;
 }
+
+
+.route-btn {
+  padding: 8px 16px;
+  margin: 4px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.route-btn.active {
+  background-color: #4CAF50; /* зелёный */
+  color: white;
+}
+

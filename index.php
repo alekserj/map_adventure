@@ -71,12 +71,13 @@
         placeholder="Куда"
         id="route-to" readonly />
 
-        <label for="routeType">Тип маршрута:</label>
-        <select class="view_select choices" id="routeType" required>
-          <option value="auto">Автомобиль</option>
-          <option value="pedestrian">Пешком</option>
-          <option value="masstransit">Общественный транспорт</option>
-        </select>
+        <label>Тип маршрута:</label>
+        <div id="route-type-buttons">
+          <button type="button" data-type="auto" class="route-btn">Автомобиль</button>
+          <button type="button" data-type="pedestrian" class="route-btn">Пешком</button>
+          <button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button>
+        </div>
+        
       </div>
 
       <div class="view__add-object-menu" id="add-object-menu">
@@ -308,6 +309,7 @@
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/routeHandler.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', setupRouteTypeButtons);</script>
     <script src="/js/addData.js"></script>
     <script src="/js/addObject.js"></script>
     <script src="/js/addObjectPicture.js"></script>
