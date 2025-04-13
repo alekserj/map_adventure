@@ -270,10 +270,25 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 20px;
-  width: 20px;
+  height: 12px;
+  width: 12px;
+  color: red;
+  border: none;
+  outline: 1px solid red;
+  background-color: transparent;
+  cursor: pointer;
+  transition: color 0.3s, background-color 0.3s;
 }
 
+.view__picture-remove:hover {
+  color: white;
+  background-color: red;
+}
+
+.view__picture-remove:active {
+  color: red;
+  background-color: transparent;
+}
 
 .route-btn {
   padding: 8px 16px;

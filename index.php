@@ -5,7 +5,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.1.3</title>
+    <title>Версия 0.2.3</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -152,8 +152,8 @@
               class="view__textarea"
               type="text"
               placeholder="Описание"
-              name="object_id"
-              id = "object_id"
+              name="object_description"
+              id = "objectDescription"
             ></textarea>
             <input 
               type="file" 
@@ -230,19 +230,12 @@
 
         points.forEach(function(point) {
           var content = `
-            <div class="swiper">
-              <div class="swiper-wrapper">
-                <div class="swiper-slide" style="background-image: url(/img/hero_img.jpg)"></div>
-                <div class="swiper-slide" style="background-image: url(/img/hero_img2.jpg)"></div>
-                <div class="swiper-slide" style="background-image: url(/img/hero_img3.jpg)"></div>
-              </div>
-              <div class="swiper-pagination"></div>
-            </div>
+            ${point.swiperHtml}
             <div>
               <h1 class="baloon__title">${point.name}</h1>
               <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
-              <p><strong>Описание:</strong> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab in accusamus velit consequuntur aperiam, nostrum est totam excepturi expedita reiciendis ut, fugit sapiente quam repellat asperiores! Quia nihil quo libero!</p> 
+              <p><strong>Описание:</strong> ${point.description || 'Не указано'}</p> 
               <button class="baloon__btn" id ="toRoute">Добавить в маршрут</button>
               <button class="baloon__information-btn" id="addInformation">Добавить информацию о объекте</button>
               <input type="hidden" value=${point.id} id="informationId"></input>
