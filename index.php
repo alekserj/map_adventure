@@ -77,7 +77,7 @@
           <button type="button" data-type="pedestrian" class="route-btn">Пешком</button>
           <button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button>
         </div>
-        
+        </form>
       </div>
 
       <div class="view__add-object-menu" id="add-object-menu">
