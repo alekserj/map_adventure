@@ -13,6 +13,11 @@
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<<<<<<< Updated upstream
+=======
+    <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+>>>>>>> Stashed changes
     <link rel="stylesheet" href="/css/style.css" />
     <script
       src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=d5ab4df7-e824-4704-8f48-be9d6f558514"
@@ -57,24 +62,19 @@
           id="route-form"
         >
         <h2 class="view__title">Маршрут</h2>
-
-        <input class="view_input"
-        type="text"
-        placeholder="Откуда"
-        id="route-from" readonly />
-
-        <input class="view_input"
-        type="text"
-        placeholder="Куда"
-        id="route-to" readonly />
-
+        <ul id="route-list" class="route-list"></ul>
         <label>Тип маршрута:</label>
         <div id="route-type-buttons">
           <button type="button" data-type="auto" class="route-btn">Автомобиль</button>
           <button type="button" data-type="pedestrian" class="route-btn">Пешком</button>
           <button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button>
         </div>
+<<<<<<< Updated upstream
         
+=======
+        <button type="button" id="reset-route">Сбросить маршрут</button>
+        </form>
+>>>>>>> Stashed changes
       </div>
 
       <div class="view__add-object-menu" id="add-object-menu">
@@ -245,7 +245,16 @@
                     },
                   });
                   myPlacemark.swiperInstance = swiper;
+<<<<<<< Updated upstream
                   attachRouteButtonHandler(point.coordinates);
+=======
+                  
+                  const script = document.createElement('script');
+                  script.src = '/js/addObjectInformation.js';
+                  document.body.appendChild(script);
+
+                  attachRouteButtonHandler(point.coordinates, point.name);
+>>>>>>> Stashed changes
                 });
   
                 myPlacemark.events.add('balloonclose', function() {
@@ -267,7 +276,6 @@
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/routeHandler.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', setupRouteTypeButtons);</script>
     <script src="/js/addData.js"></script>
     <script src="/js/addObject.js"></script>
     <script src="/js/choices.min.js"></script>

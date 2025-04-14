@@ -256,4 +256,20 @@ a {
   background-color: #4CAF50; /* зелёный */
   color: white;
 }
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+
+.route-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.route-list li {
+  padding: 8px;
+  background: #f3f3f3;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  cursor: grab;
+}
 >>>>>>> Stashed changes
