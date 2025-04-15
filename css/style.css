@@ -156,7 +156,8 @@ a {
 }
 
 .view__form-btn,
-.baloon__btn{
+.baloon__btn,
+.route-btn{
   display: inline-block;
   margin: 0;
   padding: 15px 0;
@@ -213,7 +214,8 @@ a {
   color: black;
 }
 
-.view__form-btn_white:hover{
+.view__form-btn_white:hover,
+.route-btn:hover{
   background-color: black;
   color: white;
 }
@@ -290,16 +292,45 @@ a {
   background-color: transparent;
 }
 
+.route__list-btn{
+  display: flex;
+  flex-direction: center;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .route-btn {
-  padding: 8px 16px;
-  margin: 4px;
-  border: 1px solid #ccc;
-  background-color: #f0f0f0;
-  cursor: pointer;
+  padding-left: 15px;
+  padding-right: 15px;
+  width: 100%;
+  color: black;
+  background-color: white;
 }
 
 .route-btn.active {
-  background-color: #4CAF50; /* зелёный */
   color: white;
+  background-color: black;
 }
 
+.route-list {
+  width: 100%;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.route-list li {
+  padding: 8px;
+  margin-bottom: 5px;
+  background: #f3f3f3;
+  border-radius: 4px;
+  cursor: grab;
+}
+
+.route-point-name,
+.route-point-address {
+  margin: 0;
+  padding: 0;
+}

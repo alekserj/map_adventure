@@ -1,7 +1,11 @@
+document.addEventListener('DOMContentLoaded', setupRouteTypeButtons);
+document.addEventListener('DOMContentLoaded', setupResetButton);
+
 let mapInstance = null;
 let routePoints = [];
 let currentRoute = null;
 let currentRouteType = 'auto'; // по умолчанию
+
 
 // Устанавливаем экземпляр карты
 function setMapInstance(map) {
@@ -27,12 +31,12 @@ function setupRouteTypeButtons() {
 }
 
 // Обработчик кнопки для добавления точки в маршрут
-function attachRouteButtonHandler(destinationCoords) {
+function attachRouteButtonHandler(destinationCoords, balloonTitle) {
   setTimeout(() => {
     const button = document.querySelector('#toRoute');
     if (button) {
       button.onclick = () => {
-        addRoutePoint(destinationCoords);
+        addRoutePoint(destinationCoords, balloonTitle);
         openRouteMenu();
       };
     }
@@ -40,65 +44,54 @@ function attachRouteButtonHandler(destinationCoords) {
 }
 
 // Добавляем точку в маршрут
-function addRoutePoint(coords) {
+function addRoutePoint(coords, balloonTitle) {
   if (routePoints.length === 0) {
     // Первая точка — стартовая, берём геолокацию
     navigator.geolocation.getCurrentPosition(
       pos => {
         const from = [pos.coords.latitude, pos.coords.longitude];
-        routePoints.push(from, coords);
+        routePoints.push({ coords: from, name: 'Стартовая точка', address: '' });
+        routePoints.push({ coords, name: balloonTitle, address: '' });
         drawCustomRoute();  // Строим маршрут
       },
       () => {
         const fallback = [51.7347, 36.1907];
-        routePoints.push(fallback, coords);
+        routePoints.push({ coords: fallback, name: 'Стартовая точка', address: '' });
+        routePoints.push({ coords, name: balloonTitle, address: '' });
         drawCustomRoute();  // Строим маршрут
       }
     );
   } else {
     // Добавляем промежуточную точку
-    routePoints.push(coords);
+    routePoints.push({ coords, name: balloonTitle, address: '' });
     drawCustomRoute();  // Строим маршрут
   }
 }
 
-// Функция для рисования маршрута с использованием multiRoute
 function drawCustomRoute() {
   if (!mapInstance) return;
 
-  // Удаляем старый маршрут
   if (currentRoute) {
     mapInstance.geoObjects.remove(currentRoute);
   }
 
-  // Строим новый маршрут с использованием multiRoute
   const multiRoute = new ymaps.multiRouter.MultiRoute({
-    referencePoints: routePoints,  // Точки маршрута
+    referencePoints: routePoints.map(point => point.coords),
     params: {
-      routingMode: currentRouteType  // Тип маршрута (авто, пешком, общественный транспорт)
+      routingMode: currentRouteType
     }
   }, {
-    boundsAutoApply: true  // Автоматически применяем границы карты
+    boundsAutoApply: true
   });
-
-  // Добавляем маршрут на карту
   mapInstance.geoObjects.add(multiRoute);
-  currentRoute = multiRoute;  // Сохраняем маршрут для дальнейшего использования
-}
+  currentRoute = multiRoute;
 
-// Обновляем поля формы с адресами
-function updateRouteFormFields(fromCoords, toCoords) {
-  ymaps.geocode(fromCoords).then(res => {
-    const address = res.geoObjects.get(0)?.getAddressLine() || fromCoords.join(', ');
-    const fromInput = document.getElementById('route-from');
-    if (fromInput) fromInput.value = address;
-  });
+  // Обновим список чуть позже
+  setTimeout(updateRouteListUI, 50);
+  enableRouteListSorting();
 
-  ymaps.geocode(toCoords).then(res => {
-    const address = res.geoObjects.get(0)?.getAddressLine() || toCoords.join(', ');
-    const toInput = document.getElementById('route-to');
-    if (toInput) toInput.value = address;
-  });
+  // Получим адреса для каждой точки
+  getAddressesForRoutePoints();
 }
 
 // Открытие меню маршрута
@@ -107,4 +100,79 @@ function openRouteMenu() {
   if (menu && !menu.classList.contains('menu-is-active')) {
     menu.classList.add('menu-is-active');
   }
+}
+
+function updateRouteListUI() {
+  const list = document.getElementById('route-list');
+  if (!list) return;
+
+  list.innerHTML = ''; // Очищаем список
+
+  routePoints.forEach((point, index) => {
+    const li = document.createElement('li');
+    li.dataset.index = index;
+
+    const name = document.createElement('h3');
+    name.classList.add('route-point-name');
+    name.textContent = point.name;
+
+    const address = document.createElement('p');
+    address.classList.add('route-point-address');
+    address.textContent = point.address || 'Загружается...';
+
+    li.appendChild(name);
+    li.appendChild(address);
+    list.appendChild(li);
+  });
+}
+
+function enableRouteListSorting() {
+  const list = document.getElementById('route-list');
+  if (!list) return;
+
+  new Sortable(list, {
+    animation: 150,
+    onEnd: function (evt) {
+      const newPoints = [];
+      const items = list.querySelectorAll('li');
+      items.forEach(li => {
+        const index = parseInt(li.dataset.index);
+        newPoints.push(routePoints[index]);
+      });
+      routePoints = newPoints;
+      drawCustomRoute();
+    }
+  });
+}
+
+// Функция для получения адресов для каждой точки
+function getAddressesForRoutePoints() {
+  routePoints.forEach((point, index) => {
+    const geocoder = ymaps.geocode(point.coords);
+    geocoder.then(res => {
+      const firstGeoObject = res.geoObjects.get(0);
+      const address = firstGeoObject.getAddressLine();
+      routePoints[index].address = address;
+      updateRouteListUI(); // Обновляем список после получения адреса
+    });
+  });
+}
+
+function setupResetButton() {
+  const resetButton = document.getElementById('reset-route');
+  if (resetButton) {
+    resetButton.addEventListener('click', () => {
+      resetRoute();
+    });
+  }
+}
+
+// Функция для сброса маршрута
+function resetRoute() {
+  routePoints = [];
+  if (currentRoute) {
+    mapInstance.geoObjects.remove(currentRoute);
+    currentRoute = null;
+  }
+  updateRouteListUI();  // Очищаем UI списка маршрута
 }

@@ -18,6 +18,8 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
+    <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <link rel="stylesheet" href="/css/style.css" />
     <script
       src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=d5ab4df7-e824-4704-8f48-be9d6f558514"
@@ -52,7 +54,7 @@
       </nav>
 
       <div class="view__route-menu" id="route-menu">
-        <button class="view__route-menu-btn" id="route-menu-close">
+        <button class="view__add-object-menu-btn" id="route-menu-close">
           <img src="/img/close.svg" alt="закрыть меню" />
         </button>
         <form
@@ -60,23 +62,14 @@
           id="route-form"
         >
         <h2 class="view__title">Маршрут</h2>
-
-        <input class="view_input"
-        type="text"
-        placeholder="Откуда"
-        id="route-from" readonly />
-
-        <input class="view_input"
-        type="text"
-        placeholder="Куда"
-        id="route-to" readonly />
-
-        <label>Тип маршрута:</label>
-        <div id="route-type-buttons">
-          <button type="button" data-type="auto" class="route-btn">Автомобиль</button>
-          <button type="button" data-type="pedestrian" class="route-btn">Пешком</button>
-          <button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button>
-        </div>
+        <ul id="route-list" class="route-list"></ul>
+        <button class="view__form-btn" type="button" id="reset-route">Сбросить маршрут</button>
+        <h2 class="view__title">Тип маршрута:</h2>
+        <ul class="route__list-btn" id="route-type-buttons">
+          <li><button type="button" data-type="auto" class="route-btn active">Автомобиль</button></li>
+          <li><button type="button" data-type="pedestrian" class="route-btn">Пешком</button></li>
+          <li><button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button></li>
+        </ul>
         </form>
       </div>
 
@@ -275,12 +268,12 @@
                     },
                   });
                   myPlacemark.swiperInstance = swiper;
-                  
+                                  
                   const script = document.createElement('script');
                   script.src = '/js/addObjectInformation.js';
                   document.body.appendChild(script);
 
-                  attachRouteButtonHandler(point.coordinates);
+                  attachRouteButtonHandler(point.coordinates, point.name);
                 });
   
                 myPlacemark.events.add('balloonclose', function() {
@@ -302,7 +295,6 @@
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/routeHandler.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', setupRouteTypeButtons);</script>
     <script src="/js/addData.js"></script>
     <script src="/js/addObject.js"></script>
     <script src="/js/addObjectPicture.js"></script>
