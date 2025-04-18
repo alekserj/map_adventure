@@ -1,12 +1,22 @@
 <?php
+    session_start();
     require_once 'include/data.php';
-    require_once __DIR__ . '/include/helpers.php';
+    require_once 'include/functions.php';
+    
+    $isAuth = isset($_SESSION['user']);
+    $user = $_SESSION['user'] ?? null;
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+      if (function_exists('clearValidation')) {
+          clearValidation();
+      }
+  }
 ?>
 <!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.2.4</title>
+    <title>Версия 0.2.5</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -166,55 +176,66 @@
         </form>
       </div>
 
-      <div class="view__account-menu" id="account-menu">
+      <div class="view__account-menu" id="account-menu" style="<?php echo $isAuth ? 'display: none;' : ''; ?>">
         <button class="view__add-object-menu-btn" id="account-menu-close">
-          <img src="/img/close.svg" alt="закрыть меню" />
+            <img src="/img/close.svg" alt="закрыть меню" />
         </button>
         
-        <form
-          class="view__form"
-          id="account-form"
-          method="post"
-          action="/include/login.php"
-        >
-          <h2 class="view__title">Войти в Личный кабинет</h2>
+        <form class="view__form" id="account-form" method="post" action="/include/login.php">
+          <h2 class="view__title">Войти в Личный кабинет</h2>     
+          <!-- Поле email -->
           <div class="view__account-section">
-            <strong class = "view__account-title">Введите E-mail</strong>
-            <input
-              class="view_input"
-              type="text"
-              placeholder="E-mail"
-              name="account-login"
-              id = "account-login"
-              value = "<?php echo old('email')?>"
-              <?php validationErrorAttr('email');?>
-            />
-            <div>
-              <?php if(hasValidationError('email')):?>
-                <small class="view__validation-error"><?php validationErrorMessage('email');?></small>
-              <?php endif;?>
-            </div>
+              <strong class="view__account-title">Введите E-mail</strong>
+              <input
+                  class="view_input <?php echo hasValidationError('email') ? 'is-invalid' : ''; ?>"
+                  type="email"
+                  placeholder="E-mail"
+                  name="account-login"
+                  value="<?php echo old('email'); ?>"
+              />
+              <?php if(hasValidationError('email')): ?>
+                  <small class="view__validation-error">
+                      <?php echo validationErrorMessage('email'); ?>
+                  </small>
+              <?php endif; ?>
           </div>
+          
+          <!-- Поле пароля -->
           <div class="view__account-section">
-            <strong class = "view__account-title">Введите пароль</strong>
-            <input
-              class="view_input"
-              type="password"
-              placeholder = "Пароль"
-              name="account-password"
-              id="account-password"
-            />
-          <button class="view__account-btn">Забыли пароль?</button>
+              <strong class="view__account-title">Введите пароль</strong>
+              <input
+                  class="view_input <?php echo hasValidationError('password') ? 'is-invalid' : ''; ?>"
+                  type="password"
+                  placeholder="Пароль"
+                  name="account-password"
+              />
+              <?php if(hasValidationError('password')): ?>
+                  <small class="view__validation-error">
+                      <?php echo validationErrorMessage('password'); ?>
+                  </small>
+              <?php endif; ?>
+              <button class="view__account-btn">Забыли пароль?</button>
           </div>
-          <?php if(hasMessage('error')):?>
-          <div class="view__account-error"><?php echo getMessage('error');?></div>
-          <?php endif;?>
-          <button class="view__form-btn" type="submit" id="">
-            Войти
-          </button>
-          <button class="view__form-btn view__form-btn_white" type="button" id="createAccount">
-            Создать аккаунт
-          </button>
+              <!-- Общий блок для всех ошибок -->
+          <?php if(hasMessage('error') || !empty($_SESSION['validation'])): ?>
+              <div class="view__account-error">
+                  <?php 
+                  // Выводим общую ошибку
+                  if(hasMessage('error')) {
+                      echo getMessage('error') . '<br>';
+                  }
+                  
+                  // Выводим ошибки валидации
+                  if(!empty($_SESSION['validation'])) {
+                      foreach($_SESSION['validation'] as $error) {
+                          echo htmlspecialchars($error) . '<br>';
+                      }
+                  }
+                  ?>
+              </div>
+          <?php endif; ?>
+          <button class="view__form-btn" type="submit">Войти</button>
+          <button class="view__form-btn view__form-btn_white" type="button" id="createAccount">Создать аккаунт</button>
         </form>
       </div>
 
@@ -237,12 +258,7 @@
               placeholder="Nickname"
               name="registration-login"
               id = "registration-login"
-              value = "<?php echo old('nick')?>"
-              <?php validationErrorAttr('name');?>
             />
-            <?php if(hasValidationError('name')):?>
-              <small class="view__validation-error"><?php validationErrorMessage('name');?></small>
-            <?php endif;?>
           </div>
           <div class="view__account-section">
             <strong class = "view__account-title">Введите ваш E-mail</strong>
@@ -252,12 +268,7 @@
               placeholder="E-mail"
               name="registration-email"
               id = "registration-email"
-              value = "<?php echo old('email')?>"
-              <?php validationErrorAttr('email');?>
             />
-            <?php if(hasValidationError('email')):?>
-              <small class="view__validation-error"><?php validationErrorMessage('email');?></small>
-            <?php endif;?>
           </div>
           <div class="view__account-section">
             <strong class = "view__account-title">Придумайте пароль</strong>
@@ -267,11 +278,7 @@
               placeholder = "Пароль"
               name="registration-password"
               id="registration-password"
-              <?php validationErrorAttr('password');?>
             />
-            <?php if(hasValidationError('password')):?>
-              <small class="view__validation-error"><?php validationErrorMessage('password');?></small>
-            <?php endif;?>
           </div>
           <div class="view__account-section">
             <strong class = "view__account-title">Подтвердите пароль</strong>
@@ -292,18 +299,19 @@
         </form>
       </div>
 
-      <div class="view__cabinet-menu" id="cabinet-menu">
+      <div class="view__cabinet-menu" id="cabinet-menu" style="<?php echo $isAuth ? '' : 'display: none;'; ?>">
         <button class="view__add-object-menu-btn" id="cabinet-menu-close">
           <img src="/img/close.svg" alt="закрыть меню" />
         </button>
         <div class="view__form">
-          <h2 class="view__title">Личный кабинет @пользователя</h2>
+          <h2 class="view__title">Личный кабинет @<?php echo htmlspecialchars($user['nickname'] ?? ''); ?></h2>
           <button class="view__form-btn" type="submit">
             Избранные места
           </button>
           <button class="view__form-btn view__form-btn_white" type="button" id="accountExists">
             Избранные маршруты
           </button>
+          <a href="/include/logout.php" class="view__form-btn view__form-btn_red">Выйти</a>
         </div>
       </div>
 
