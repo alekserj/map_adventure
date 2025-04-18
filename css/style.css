@@ -76,6 +76,8 @@ a {
 .view__route-menu,
 .view__add-object-menu,
 .view__account-menu,
+.view__registration-menu,
+.view__cabinet-menu,
 .view__add-information-menu {
   position: absolute;
   top: 0;
@@ -333,4 +335,18 @@ a {
 .route-point-address {
   margin: 0;
   padding: 0;
+}
+
+.view__validation-error{
+  color: red;
+}
+
+.view__account-error{
+  padding: 15px;
+  width: 100%;
+  text-align: center;
+  color: red;
+  outline: 1px solid red;
+  background-color: rgba(255, 0, 0, 0.2);
+  border-radius: 10px;
 }

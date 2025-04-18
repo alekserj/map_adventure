@@ -1,11 +1,12 @@
 <?php
-    require_once'include/data.php';
+    require_once 'include/data.php';
+    require_once __DIR__ . '/include/helpers.php';
 ?>
 <!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.2.3</title>
+    <title>Версия 0.2.4</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -169,19 +170,33 @@
         <button class="view__add-object-menu-btn" id="account-menu-close">
           <img src="/img/close.svg" alt="закрыть меню" />
         </button>
+        
         <form
           class="view__form"
           id="account-form"
+          method="post"
+          action="/include/login.php"
         >
-          <h2 class="view__title">Войти в аккаунт</h2>
-          <input
-            class="view_input"
-            type="text"
-            placeholder="Логин"
-            name="account-login"
-            id = "account-login"
-          />
+          <h2 class="view__title">Войти в Личный кабинет</h2>
           <div class="view__account-section">
+            <strong class = "view__account-title">Введите E-mail</strong>
+            <input
+              class="view_input"
+              type="text"
+              placeholder="E-mail"
+              name="account-login"
+              id = "account-login"
+              value = "<?php echo old('email')?>"
+              <?php validationErrorAttr('email');?>
+            />
+            <div>
+              <?php if(hasValidationError('email')):?>
+                <small class="view__validation-error"><?php validationErrorMessage('email');?></small>
+              <?php endif;?>
+            </div>
+          </div>
+          <div class="view__account-section">
+            <strong class = "view__account-title">Введите пароль</strong>
             <input
               class="view_input"
               type="password"
@@ -191,13 +206,105 @@
             />
           <button class="view__account-btn">Забыли пароль?</button>
           </div>
-          <button class="view__form-btn" type="" id="">
+          <?php if(hasMessage('error')):?>
+          <div class="view__account-error"><?php echo getMessage('error');?></div>
+          <?php endif;?>
+          <button class="view__form-btn" type="submit" id="">
             Войти
           </button>
-          <button class="view__form-btn view__form-btn_white" type="" id="">
+          <button class="view__form-btn view__form-btn_white" type="button" id="createAccount">
             Создать аккаунт
           </button>
         </form>
+      </div>
+
+      <div class="view__registration-menu" id="registration-menu">
+        <button class="view__add-object-menu-btn" id="registration-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <form
+          class="view__form"
+          id="registration-form"
+          method="post"
+          action="/include/register.php"
+        >
+          <h2 class="view__title">Регистрация</h2>
+          <div class="view__account-section">
+            <strong class = "view__account-title">Придумайте nickname</strong>
+            <input
+              class="view_input"
+              type="text"
+              placeholder="Nickname"
+              name="registration-login"
+              id = "registration-login"
+              value = "<?php echo old('nick')?>"
+              <?php validationErrorAttr('name');?>
+            />
+            <?php if(hasValidationError('name')):?>
+              <small class="view__validation-error"><?php validationErrorMessage('name');?></small>
+            <?php endif;?>
+          </div>
+          <div class="view__account-section">
+            <strong class = "view__account-title">Введите ваш E-mail</strong>
+            <input
+              class="view_input"
+              type="email"
+              placeholder="E-mail"
+              name="registration-email"
+              id = "registration-email"
+              value = "<?php echo old('email')?>"
+              <?php validationErrorAttr('email');?>
+            />
+            <?php if(hasValidationError('email')):?>
+              <small class="view__validation-error"><?php validationErrorMessage('email');?></small>
+            <?php endif;?>
+          </div>
+          <div class="view__account-section">
+            <strong class = "view__account-title">Придумайте пароль</strong>
+            <input
+              class="view_input"
+              type="password"
+              placeholder = "Пароль"
+              name="registration-password"
+              id="registration-password"
+              <?php validationErrorAttr('password');?>
+            />
+            <?php if(hasValidationError('password')):?>
+              <small class="view__validation-error"><?php validationErrorMessage('password');?></small>
+            <?php endif;?>
+          </div>
+          <div class="view__account-section">
+            <strong class = "view__account-title">Подтвердите пароль</strong>
+            <input
+              class="view_input"
+              type="password"
+              placeholder = "Подтвердите пароль"
+              name="registration-password-confirm"
+              id="registration-password-confirm"
+            />
+          </div>
+          <button class="view__form-btn" type="submit">
+            Зарегистрироваться
+          </button>
+          <button class="view__form-btn view__form-btn_white" type="button" id="accountExists">
+            Уже есть аккаунт?
+          </button>
+        </form>
+      </div>
+
+      <div class="view__cabinet-menu" id="cabinet-menu">
+        <button class="view__add-object-menu-btn" id="cabinet-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <div class="view__form">
+          <h2 class="view__title">Личный кабинет @пользователя</h2>
+          <button class="view__form-btn" type="submit">
+            Избранные места
+          </button>
+          <button class="view__form-btn view__form-btn_white" type="button" id="accountExists">
+            Избранные маршруты
+          </button>
+        </div>
       </div>
 
       <div class="view__map" id="map"></div>
@@ -302,6 +409,7 @@
     <script src="/js/openRouteMenu.js"></script>
     <script src="/js/openAddMenu.js"></script>
     <script src="/js/openAccountMenu.js"></script>
+    <script src="/js/openRegistrationMenu.js"></script>
     <script src="/js/selectValue.js"></script>  
     <script>
       const element = document.querySelector("#selectCustom");
