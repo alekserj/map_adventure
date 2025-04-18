@@ -324,6 +324,9 @@ a {
 }
 
 .route-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 8px;
   margin-bottom: 5px;
   background: #f3f3f3;

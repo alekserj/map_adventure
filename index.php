@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.2.5</title>
+    <title>Версия 0.2.6</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link

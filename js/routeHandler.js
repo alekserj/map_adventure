@@ -43,8 +43,18 @@ function attachRouteButtonHandler(destinationCoords, balloonTitle) {
   }, 100);
 }
 
-// Добавляем точку в маршрут
 function addRoutePoint(coords, balloonTitle) {
+  // Проверка: не добавлена ли уже такая точка
+  const alreadyExists = routePoints.some(p =>
+    p.coords[0] === coords[0] && p.coords[1] === coords[1]
+  );
+
+  if (alreadyExists) {
+    // Уведомление
+    alert("Эта точка уже добавлена в маршрут.");
+    return;
+  }
+
   if (routePoints.length === 0) {
     // Первая точка — стартовая, берём геолокацию
     navigator.geolocation.getCurrentPosition(
@@ -67,6 +77,7 @@ function addRoutePoint(coords, balloonTitle) {
     drawCustomRoute();  // Строим маршрут
   }
 }
+
 
 function drawCustomRoute() {
   if (!mapInstance) return;
@@ -111,6 +122,10 @@ function updateRouteListUI() {
   routePoints.forEach((point, index) => {
     const li = document.createElement('li');
     li.dataset.index = index;
+    li.classList.add('route-list-item'); // добавим класс
+
+    const content = document.createElement('div');
+    content.classList.add('route-content');
 
     const name = document.createElement('h3');
     name.classList.add('route-point-name');
@@ -120,9 +135,19 @@ function updateRouteListUI() {
     address.classList.add('route-point-address');
     address.textContent = point.address || 'Загружается...';
 
-    li.appendChild(name);
-    li.appendChild(address);
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.classList.add('remove-point-btn');
+    removeBtn.innerHTML = '×';
+    removeBtn.title = 'Удалить точку';
+    removeBtn.onclick = () => removeRoutePoint(index);
+
+    content.appendChild(name);
+    content.appendChild(address);
+    li.appendChild(content);
+    li.appendChild(removeBtn);
     list.appendChild(li);
+
   });
 }
 
@@ -175,4 +200,9 @@ function resetRoute() {
     currentRoute = null;
   }
   updateRouteListUI();  // Очищаем UI списка маршрута
+}
+
+function removeRoutePoint(index) {
+  routePoints.splice(index, 1);
+  drawCustomRoute(); // Перестраиваем маршрут
 }
