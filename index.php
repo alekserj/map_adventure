@@ -1,23 +1,26 @@
 <?php
-    require_once'include/data.php';
+    require_once 'include/data.php';
+    require_once __DIR__ . '/include/helpers.php';
 ?>
 <!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.1.3</title>
+    <title>Версия 0.2.4</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/simplebar@latest/dist/simplebar.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<<<<<<< Updated upstream
-=======
+    <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
     <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
->>>>>>> Stashed changes
     <link rel="stylesheet" href="/css/style.css" />
     <script
       src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=d5ab4df7-e824-4704-8f48-be9d6f558514"
@@ -51,10 +54,8 @@
         </ul>
       </nav>
 
-
-
       <div class="view__route-menu" id="route-menu">
-        <button class="view__route-menu-btn" id="route-menu-close">
+        <button class="view__add-object-menu-btn" id="route-menu-close">
           <img src="/img/close.svg" alt="закрыть меню" />
         </button>
         <form
@@ -63,18 +64,14 @@
         >
         <h2 class="view__title">Маршрут</h2>
         <ul id="route-list" class="route-list"></ul>
-        <label>Тип маршрута:</label>
-        <div id="route-type-buttons">
-          <button type="button" data-type="auto" class="route-btn">Автомобиль</button>
-          <button type="button" data-type="pedestrian" class="route-btn">Пешком</button>
-          <button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button>
-        </div>
-<<<<<<< Updated upstream
-        
-=======
-        <button type="button" id="reset-route">Сбросить маршрут</button>
+        <button class="view__form-btn" type="button" id="reset-route">Сбросить маршрут</button>
+        <h2 class="view__title">Тип маршрута:</h2>
+        <ul class="route__list-btn" id="route-type-buttons">
+          <li><button type="button" data-type="auto" class="route-btn active">Автомобиль</button></li>
+          <li><button type="button" data-type="pedestrian" class="route-btn">Пешком</button></li>
+          <li><button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button></li>
+        </ul>
         </form>
->>>>>>> Stashed changes
       </div>
 
       <div class="view__add-object-menu" id="add-object-menu">
@@ -136,23 +133,70 @@
         </form>
       </div>
 
-      <div class="view__account-menu" id="account-menu">
-        <button class="view__add-object-menu-btn" id="account-menu-close">
+      <div class="view__add-information-menu" id="add-information-menu">
+        <button class="view__add-object-menu-btn" id="add-information-menu-close">
           <img src="/img/close.svg" alt="закрыть меню" />
         </button>
         <form
           class="view__form"
-          id="account-form"
+          id="add-information-menu-form"
         >
-          <h2 class="view__title">Войти в аккаунт</h2>
-          <input
-            class="view_input"
-            type="text"
-            placeholder="Логин"
-            name="account-login"
-            id = "account-login"
-          />
+          <div class="customScroll" data-simplebar>
+            <textarea
+              class="view__textarea"
+              type="text"
+              placeholder="Описание"
+              name="object_description"
+              id = "objectDescription"
+            ></textarea>
+            <input 
+              type="file" 
+              id="fileInput" 
+              accept="image/*" 
+              multiple 
+              style="display: none;"
+            >
+            <button type="button" class="view__form-btn view__form-btn_add-img" id="addObjectInformationImg">
+            </button>
+            <ul class="view__picture-list" id="pictureList"></ul>
+          </div>
+          <button class="view__form-btn" type="submit" id="addObjectDB">
+            Добавить
+          </button>
+        </form>
+      </div>
+
+      <div class="view__account-menu" id="account-menu">
+        <button class="view__add-object-menu-btn" id="account-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        
+        <form
+          class="view__form"
+          id="account-form"
+          method="post"
+          action="/include/login.php"
+        >
+          <h2 class="view__title">Войти в Личный кабинет</h2>
           <div class="view__account-section">
+            <strong class = "view__account-title">Введите E-mail</strong>
+            <input
+              class="view_input"
+              type="text"
+              placeholder="E-mail"
+              name="account-login"
+              id = "account-login"
+              value = "<?php echo old('email')?>"
+              <?php validationErrorAttr('email');?>
+            />
+            <div>
+              <?php if(hasValidationError('email')):?>
+                <small class="view__validation-error"><?php validationErrorMessage('email');?></small>
+              <?php endif;?>
+            </div>
+          </div>
+          <div class="view__account-section">
+            <strong class = "view__account-title">Введите пароль</strong>
             <input
               class="view_input"
               type="password"
@@ -162,13 +206,105 @@
             />
           <button class="view__account-btn">Забыли пароль?</button>
           </div>
-          <button class="view__form-btn" type="" id="">
+          <?php if(hasMessage('error')):?>
+          <div class="view__account-error"><?php echo getMessage('error');?></div>
+          <?php endif;?>
+          <button class="view__form-btn" type="submit" id="">
             Войти
           </button>
-          <button class="view__form-btn view__form-btn_white" type="" id="">
+          <button class="view__form-btn view__form-btn_white" type="button" id="createAccount">
             Создать аккаунт
           </button>
         </form>
+      </div>
+
+      <div class="view__registration-menu" id="registration-menu">
+        <button class="view__add-object-menu-btn" id="registration-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <form
+          class="view__form"
+          id="registration-form"
+          method="post"
+          action="/include/register.php"
+        >
+          <h2 class="view__title">Регистрация</h2>
+          <div class="view__account-section">
+            <strong class = "view__account-title">Придумайте nickname</strong>
+            <input
+              class="view_input"
+              type="text"
+              placeholder="Nickname"
+              name="registration-login"
+              id = "registration-login"
+              value = "<?php echo old('nick')?>"
+              <?php validationErrorAttr('name');?>
+            />
+            <?php if(hasValidationError('name')):?>
+              <small class="view__validation-error"><?php validationErrorMessage('name');?></small>
+            <?php endif;?>
+          </div>
+          <div class="view__account-section">
+            <strong class = "view__account-title">Введите ваш E-mail</strong>
+            <input
+              class="view_input"
+              type="email"
+              placeholder="E-mail"
+              name="registration-email"
+              id = "registration-email"
+              value = "<?php echo old('email')?>"
+              <?php validationErrorAttr('email');?>
+            />
+            <?php if(hasValidationError('email')):?>
+              <small class="view__validation-error"><?php validationErrorMessage('email');?></small>
+            <?php endif;?>
+          </div>
+          <div class="view__account-section">
+            <strong class = "view__account-title">Придумайте пароль</strong>
+            <input
+              class="view_input"
+              type="password"
+              placeholder = "Пароль"
+              name="registration-password"
+              id="registration-password"
+              <?php validationErrorAttr('password');?>
+            />
+            <?php if(hasValidationError('password')):?>
+              <small class="view__validation-error"><?php validationErrorMessage('password');?></small>
+            <?php endif;?>
+          </div>
+          <div class="view__account-section">
+            <strong class = "view__account-title">Подтвердите пароль</strong>
+            <input
+              class="view_input"
+              type="password"
+              placeholder = "Подтвердите пароль"
+              name="registration-password-confirm"
+              id="registration-password-confirm"
+            />
+          </div>
+          <button class="view__form-btn" type="submit">
+            Зарегистрироваться
+          </button>
+          <button class="view__form-btn view__form-btn_white" type="button" id="accountExists">
+            Уже есть аккаунт?
+          </button>
+        </form>
+      </div>
+
+      <div class="view__cabinet-menu" id="cabinet-menu">
+        <button class="view__add-object-menu-btn" id="cabinet-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <div class="view__form">
+          <h2 class="view__title">Личный кабинет @пользователя</h2>
+          <button class="view__form-btn" type="submit">
+            Избранные места
+          </button>
+          <button class="view__form-btn view__form-btn_white" type="button" id="accountExists">
+            Избранные маршруты
+          </button>
+        </div>
       </div>
 
       <div class="view__map" id="map"></div>
@@ -177,7 +313,7 @@
   <script>
       ymaps.ready(init);
       function init() {
-        var myMap = new ymaps.Map("map", {
+        myMap = new ymaps.Map("map", {
         center: [51.73470896697555, 36.19070462924623],
         zoom: 13,
         });
@@ -194,22 +330,16 @@
 
         points.forEach(function(point) {
           var content = `
-            <div class="swiper">
-              <div class="swiper-wrapper">
-                <div class="swiper-slide" style="background-image: url(/img/hero_img.jpg)"></div>
-                <div class="swiper-slide" style="background-image: url(/img/hero_img2.jpg)"></div>
-                <div class="swiper-slide" style="background-image: url(/img/hero_img3.jpg)"></div>
-              </div>
-              <div class="swiper-pagination"></div>
-            </div>
+            ${point.swiperHtml}
             <div>
               <h1 class="baloon__title">${point.name}</h1>
               <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
-              <p><strong>Описание:</strong> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab in accusamus velit consequuntur aperiam, nostrum est totam excepturi expedita reiciendis ut, fugit sapiente quam repellat asperiores! Quia nihil quo libero!</p> 
-              <button class="baloon__btn" id ="toRoute";">Добавить в маршрут</button>
-              <button class="baloon__information-btn">Добавить информацию о объекте</button>
-            <div>`
+              <p><strong>Описание:</strong> ${point.description || 'Не указано'}</p> 
+              <button class="baloon__btn" id ="toRoute">Добавить в маршрут</button>
+              <button class="baloon__information-btn" id="addInformation">Добавить информацию о объекте</button>
+              <input type="hidden" value=${point.id} id="informationId"></input>
+            </div>`
             ;
             var iconHref = '/img/point.svg';
             var iconSize = [40, 40];
@@ -245,16 +375,12 @@
                     },
                   });
                   myPlacemark.swiperInstance = swiper;
-<<<<<<< Updated upstream
-                  attachRouteButtonHandler(point.coordinates);
-=======
-                  
+                                  
                   const script = document.createElement('script');
                   script.src = '/js/addObjectInformation.js';
                   document.body.appendChild(script);
 
                   attachRouteButtonHandler(point.coordinates, point.name);
->>>>>>> Stashed changes
                 });
   
                 myPlacemark.events.add('balloonclose', function() {
@@ -278,10 +404,12 @@
     <script src="/js/routeHandler.js"></script>
     <script src="/js/addData.js"></script>
     <script src="/js/addObject.js"></script>
+    <script src="/js/addObjectPicture.js"></script>
     <script src="/js/choices.min.js"></script>
     <script src="/js/openRouteMenu.js"></script>
     <script src="/js/openAddMenu.js"></script>
     <script src="/js/openAccountMenu.js"></script>
+    <script src="/js/openRegistrationMenu.js"></script>
     <script src="/js/selectValue.js"></script>  
     <script>
       const element = document.querySelector("#selectCustom");
