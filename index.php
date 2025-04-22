@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.2.6</title>
+    <title>Версия 0.3.0</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -65,16 +65,25 @@
       </nav>
 
       <div class="view__route-menu" id="route-menu">
-        <button class="view__add-object-menu-btn" id="route-menu-close">
-          <img src="/img/close.svg" alt="закрыть меню" />
-        </button>
+        <ul class="view__route-btn-list">
+          <li>
+            <button class="view__add-object-menu-btn" id="route-menu-close">
+              <img src="/img/collapse.svg" alt="cвернуть меню" />
+            </button>
+          </li>
+          <li>
+            <button class="view__add-object-menu-btn" id="reset-route">
+              <img src="/img/close.svg" alt="закрыть меню" />
+            </button>
+          </li>
+        </ul>
         <form
           class="view__form"
           id="route-form"
         >
         <h2 class="view__title">Маршрут</h2>
         <ul id="route-list" class="route-list"></ul>
-        <button class="view__form-btn" type="button" id="reset-route">Сбросить маршрут</button>
+        <button class="view__form-btn" type="button" id="addFavoriteRoute">Добавить в избранное</button>
         <h2 class="view__title">Тип маршрута:</h2>
         <ul class="route__list-btn" id="route-type-buttons">
           <li><button type="button" data-type="auto" class="route-btn active">Автомобиль</button></li>
@@ -180,10 +189,8 @@
         <button class="view__add-object-menu-btn" id="account-menu-close">
             <img src="/img/close.svg" alt="закрыть меню" />
         </button>
-        
         <form class="view__form" id="account-form" method="post" action="/include/login.php">
           <h2 class="view__title">Войти в Личный кабинет</h2>     
-          <!-- Поле email -->
           <div class="view__account-section">
               <strong class="view__account-title">Введите E-mail</strong>
               <input
@@ -199,8 +206,6 @@
                   </small>
               <?php endif; ?>
           </div>
-          
-          <!-- Поле пароля -->
           <div class="view__account-section">
               <strong class="view__account-title">Введите пароль</strong>
               <input
@@ -216,16 +221,12 @@
               <?php endif; ?>
               <button class="view__account-btn">Забыли пароль?</button>
           </div>
-              <!-- Общий блок для всех ошибок -->
           <?php if(hasMessage('error') || !empty($_SESSION['validation'])): ?>
               <div class="view__account-error">
                   <?php 
-                  // Выводим общую ошибку
                   if(hasMessage('error')) {
                       echo getMessage('error') . '<br>';
                   }
-                  
-                  // Выводим ошибки валидации
                   if(!empty($_SESSION['validation'])) {
                       foreach($_SESSION['validation'] as $error) {
                           echo htmlspecialchars($error) . '<br>';
@@ -340,7 +341,10 @@
           var content = `
             ${point.swiperHtml}
             <div>
-              <h1 class="baloon__title">${point.name}</h1>
+              <h1 class="baloon__title">
+                ${point.name}
+                <button class="baloon__favorite baloon__favorite-grey" id="addFavoritePoint"></button>
+              </h1>
               <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
               <p><strong>Описание:</strong> ${point.description || 'Не указано'}</p> 
@@ -383,6 +387,11 @@
                     },
                   });
                   myPlacemark.swiperInstance = swiper;
+
+                  const pointId = document.getElementById('informationId').value;
+                  attachFavoriteButtonHandler(pointId);
+
+                  checkFavoriteStatus(pointId);
                                   
                   const script = document.createElement('script');
                   script.src = '/js/addObjectInformation.js';
@@ -407,6 +416,26 @@
           addPlacemark(myMap);
         });
       }
+
+      function checkFavoriteStatus(pointId) {
+        fetch('/include/auth.php')
+          .then(response => response.json())
+          .then(data => {
+            if (!data.isAuth) return;
+            
+            fetch(`/include/check_favorite.php?point_id=${pointId}`)
+              .then(response => response.json())
+              .then(data => {
+                if (data.isFavorite) {
+                  const button = document.querySelector('#addFavoritePoint');
+                  if (button) {
+                    button.classList.remove('baloon__favorite-grey');
+                    button.classList.add('baloon__favorite-gold');
+                  }
+                }
+              });
+          });
+      }
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/routeHandler.js"></script>
@@ -414,6 +443,7 @@
     <script src="/js/addObject.js"></script>
     <script src="/js/addObjectPicture.js"></script>
     <script src="/js/choices.min.js"></script>
+    <script src="/js/favoritePoint.js"></script>
     <script src="/js/openRouteMenu.js"></script>
     <script src="/js/openAddMenu.js"></script>
     <script src="/js/openAccountMenu.js"></script>

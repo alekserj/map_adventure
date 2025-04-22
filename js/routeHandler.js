@@ -188,6 +188,7 @@ function setupResetButton() {
   if (resetButton) {
     resetButton.addEventListener('click', () => {
       resetRoute();
+      document.querySelector("#route-menu").classList.toggle("menu-is-active");
     });
   }
 }
@@ -205,4 +206,53 @@ function resetRoute() {
 function removeRoutePoint(index) {
   routePoints.splice(index, 1);
   drawCustomRoute(); // Перестраиваем маршрут
+}
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  const addFavoriteBtn = document.getElementById('addFavoriteRoute');
+  if (addFavoriteBtn) {
+      addFavoriteBtn.addEventListener('click', saveFavoriteRoute);
+  }
+});
+
+function saveFavoriteRoute() {
+  fetch('../include/auth.php')
+      .then(response => response.json())
+      .then(data => {
+          if (!data.isAuth) {
+              alert('Для сохранения маршрута необходимо авторизоваться');
+              return;
+          }
+          
+          if (routePoints.length < 2) {
+              alert('Маршрут должен содержать хотя бы 2 точки');
+              return;
+          }
+          
+          const routeData = JSON.stringify(routePoints);
+          
+          return fetch('../include/save_route.php', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  route: routeData,
+                  routeType: currentRouteType
+              })
+          });
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              alert('Маршрут успешно сохранен в избранное');
+          } else {
+              alert('Ошибка при сохранении маршрута: ' + data.message);
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert('Произошла ошибка при сохранении маршрута');
+      });
 }

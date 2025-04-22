@@ -205,6 +205,24 @@ a {
   line-height: 1;
 }
 
+.baloon__favorite{
+  padding: 0;
+  height: 20px;
+  width: 20px;
+  background: center no-repeat;
+  background-size: 100%;
+  border: none;
+  cursor: pointer;
+}
+
+.baloon__favorite-grey{
+  background-image: url(../img/grey_star.svg);
+}
+
+.baloon__favorite-gold{
+  background-image: url(../img/gold_star.svg);
+}
+
 .baloon__btn{
   width: 98%;
   margin-left: 1px;
@@ -292,6 +310,13 @@ a {
 .view__picture-remove:active {
   color: red;
   background-color: transparent;
+}
+
+.view__route-btn-list{
+  display: flex;
+  padding: 0;
+  margin: 0;
+  list-style: none;
 }
 
 .route__list-btn{
