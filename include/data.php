@@ -5,7 +5,6 @@ if ($mysqli->connect_error) {
     die("Ошибка подключения: " . $mysqli->connect_error);
 }
 
-// Запрос для получения точек
 $sql = "SELECT id, name, street, category, description, ST_AsText(geo) AS geo_text FROM points";
 $result = $mysqli->query($sql);
 
@@ -17,8 +16,7 @@ if ($result->num_rows > 0) {
         if (count($matches) == 3) {
             $longitude = (float)$matches[1];
             $latitude = (float)$matches[2];
-            
-            // Получаем изображения для текущей точки
+
             $images = [];
             $imageQuery = $mysqli->prepare("SELECT link FROM pictures WHERE object_id = ?");
             $imageQuery->bind_param("i", $row['id']);
@@ -29,8 +27,7 @@ if ($result->num_rows > 0) {
                 $images[] = $imageRow['link'];
             }
             $imageQuery->close();
-            
-            // Генерируем HTML для слайдера
+
             $swiperHtml = '<div class="swiper"><div class="swiper-wrapper">';
             
             if (!empty($images)) {

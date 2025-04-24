@@ -1,36 +1,30 @@
 document.addEventListener('DOMContentLoaded', setupRouteTypeButtons);
 document.addEventListener('DOMContentLoaded', setupResetButton);
+document.addEventListener('DOMContentLoaded', setupRouteModalHandlers);
 
 let mapInstance = null;
 let routePoints = [];
 let currentRoute = null;
-let currentRouteType = 'auto'; // по умолчанию
+let currentRouteType = 'auto';
 
-
-// Устанавливаем экземпляр карты
 function setMapInstance(map) {
   mapInstance = map;
 }
 
-// Настройка кнопок выбора типа маршрута
 function setupRouteTypeButtons() {
   const buttons = document.querySelectorAll('.route-btn');
-
   buttons.forEach(btn => {
     btn.addEventListener('click', () => {
       currentRouteType = btn.dataset.type;
-
       buttons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
       if (routePoints.length >= 2) {
-        drawCustomRoute(); // Строим маршрут заново с новым типом
+        drawCustomRoute();
       }
     });
   });
 }
 
-// Обработчик кнопки для добавления точки в маршрут
 function attachRouteButtonHandler(destinationCoords, balloonTitle) {
   setTimeout(() => {
     const button = document.querySelector('#toRoute');
@@ -44,40 +38,35 @@ function attachRouteButtonHandler(destinationCoords, balloonTitle) {
 }
 
 function addRoutePoint(coords, balloonTitle) {
-  // Проверка: не добавлена ли уже такая точка
   const alreadyExists = routePoints.some(p =>
     p.coords[0] === coords[0] && p.coords[1] === coords[1]
   );
 
   if (alreadyExists) {
-    // Уведомление
     alert("Эта точка уже добавлена в маршрут.");
     return;
   }
 
   if (routePoints.length === 0) {
-    // Первая точка — стартовая, берём геолокацию
     navigator.geolocation.getCurrentPosition(
       pos => {
         const from = [pos.coords.latitude, pos.coords.longitude];
         routePoints.push({ coords: from, name: 'Стартовая точка', address: '' });
         routePoints.push({ coords, name: balloonTitle, address: '' });
-        drawCustomRoute();  // Строим маршрут
+        drawCustomRoute();
       },
       () => {
         const fallback = [51.7347, 36.1907];
         routePoints.push({ coords: fallback, name: 'Стартовая точка', address: '' });
         routePoints.push({ coords, name: balloonTitle, address: '' });
-        drawCustomRoute();  // Строим маршрут
+        drawCustomRoute();
       }
     );
   } else {
-    // Добавляем промежуточную точку
     routePoints.push({ coords, name: balloonTitle, address: '' });
-    drawCustomRoute();  // Строим маршрут
+    drawCustomRoute();
   }
 }
-
 
 function drawCustomRoute() {
   if (!mapInstance) return;
@@ -97,15 +86,11 @@ function drawCustomRoute() {
   mapInstance.geoObjects.add(multiRoute);
   currentRoute = multiRoute;
 
-  // Обновим список чуть позже
   setTimeout(updateRouteListUI, 50);
   enableRouteListSorting();
-
-  // Получим адреса для каждой точки
   getAddressesForRoutePoints();
 }
 
-// Открытие меню маршрута
 function openRouteMenu() {
   const menu = document.getElementById('route-menu');
   if (menu && !menu.classList.contains('menu-is-active')) {
@@ -117,12 +102,12 @@ function updateRouteListUI() {
   const list = document.getElementById('route-list');
   if (!list) return;
 
-  list.innerHTML = ''; // Очищаем список
+  list.innerHTML = '';
 
   routePoints.forEach((point, index) => {
     const li = document.createElement('li');
     li.dataset.index = index;
-    li.classList.add('route-list-item'); // добавим класс
+    li.classList.add('route-list-item');
 
     const content = document.createElement('div');
     content.classList.add('route-content');
@@ -147,7 +132,6 @@ function updateRouteListUI() {
     li.appendChild(content);
     li.appendChild(removeBtn);
     list.appendChild(li);
-
   });
 }
 
@@ -170,7 +154,6 @@ function enableRouteListSorting() {
   });
 }
 
-// Функция для получения адресов для каждой точки
 function getAddressesForRoutePoints() {
   routePoints.forEach((point, index) => {
     const geocoder = ymaps.geocode(point.coords);
@@ -178,7 +161,7 @@ function getAddressesForRoutePoints() {
       const firstGeoObject = res.geoObjects.get(0);
       const address = firstGeoObject.getAddressLine();
       routePoints[index].address = address;
-      updateRouteListUI(); // Обновляем список после получения адреса
+      updateRouteListUI();
     });
   });
 }
@@ -193,66 +176,92 @@ function setupResetButton() {
   }
 }
 
-// Функция для сброса маршрута
 function resetRoute() {
   routePoints = [];
   if (currentRoute) {
     mapInstance.geoObjects.remove(currentRoute);
     currentRoute = null;
   }
-  updateRouteListUI();  // Очищаем UI списка маршрута
+  updateRouteListUI();
 }
 
 function removeRoutePoint(index) {
   routePoints.splice(index, 1);
-  drawCustomRoute(); // Перестраиваем маршрут
+  drawCustomRoute();
 }
 
-
-document.addEventListener('DOMContentLoaded', function() {
+function setupRouteModalHandlers() {
   const addFavoriteBtn = document.getElementById('addFavoriteRoute');
   if (addFavoriteBtn) {
-      addFavoriteBtn.addEventListener('click', saveFavoriteRoute);
+    addFavoriteBtn.addEventListener('click', showRouteNameModal);
   }
-});
 
-function saveFavoriteRoute() {
+  const closeModalBtn = document.getElementById('close-route-name-modal');
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', hideRouteNameModal);
+  }
+
+  const confirmBtn = document.getElementById('confirm-route-name');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', saveFavoriteRouteWithName);
+  }
+}
+
+function showRouteNameModal() {
   fetch('../include/auth.php')
-      .then(response => response.json())
-      .then(data => {
-          if (!data.isAuth) {
-              alert('Для сохранения маршрута необходимо авторизоваться');
-              return;
-          }
-          
-          if (routePoints.length < 2) {
-              alert('Маршрут должен содержать хотя бы 2 точки');
-              return;
-          }
-          
-          const routeData = JSON.stringify(routePoints);
-          
-          return fetch('../include/save_route.php', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                  route: routeData,
-                  routeType: currentRouteType
-              })
-          });
-      })
-      .then(response => response.json())
-      .then(data => {
-          if (data.success) {
-              alert('Маршрут успешно сохранен в избранное');
-          } else {
-              alert('Ошибка при сохранении маршрута: ' + data.message);
-          }
-      })
-      .catch(error => {
-          console.error('Error:', error);
-          alert('Произошла ошибка при сохранении маршрута');
-      });
+    .then(response => response.json())
+    .then(data => {
+      if (!data.isAuth) {
+        alert('Для сохранения маршрута необходимо авторизоваться');
+        return;
+      }
+      
+      if (routePoints.length < 2) {
+        alert('Маршрут должен содержать хотя бы 2 точки');
+        return;
+      }
+      
+      document.getElementById('route-name-modal').style.display = 'flex';
+    });
+}
+
+function hideRouteNameModal() {
+  document.getElementById('route-name-modal').style.display = 'none';
+}
+
+function saveFavoriteRouteWithName() {
+  const routeName = document.getElementById('route-name-input').value.trim();
+  
+  if (!routeName) {
+    alert('Пожалуйста, введите название маршрута');
+    return;
+  }
+  
+  const routeData = JSON.stringify(routePoints);
+  
+  fetch('../include/save_route.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      route: routeData,
+      routeType: currentRouteType,
+      name: routeName
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert('Маршрут "' + routeName + '" успешно сохранен в избранное');
+      hideRouteNameModal();
+      document.getElementById('route-name-input').value = '';
+    } else {
+      alert('Ошибка при сохранении маршрута: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Произошла ошибка при сохранении маршрута');
+  });
 }

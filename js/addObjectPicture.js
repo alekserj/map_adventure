@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const pictureList = document.getElementById('pictureList');
   const form = document.getElementById('add-information-menu-form');
   
-  // Массив для хранения выбранных изображений
   const selectedImages = [];
   
   addImageBtn.addEventListener('click', function() {
@@ -21,18 +20,15 @@ document.addEventListener('DOMContentLoaded', function() {
               const reader = new FileReader();
               
               reader.onload = function(e) {
-                  // Создаем объект с данными изображения
                   const imageData = {
-                      id: Date.now() + i, // Уникальный ID
-                      file: file, // Сам файл
-                      preview: e.target.result, // DataURL для превью
+                      id: Date.now() + i,
+                      file: file,
+                      preview: e.target.result,
                       name: file.name
                   };
-                  
-                  // Добавляем в массив
+
                   selectedImages.push(imageData);
-                  
-                  // Создаем элемент для отображения
+
                   const listItem = document.createElement('li');
                   listItem.className = 'view__picture-item';
                   listItem.dataset.id = imageData.id;
@@ -48,12 +44,11 @@ document.addEventListener('DOMContentLoaded', function() {
                   removeBtn.textContent = '×';
                   removeBtn.className = 'view__picture-remove';
                   removeBtn.addEventListener('click', function() {
-                      // Удаляем из массива
+
                       const index = selectedImages.findIndex(img => img.id == listItem.dataset.id);
                       if (index !== -1) {
                           selectedImages.splice(index, 1);
                       }
-                      // Удаляем из DOM
                       listItem.remove();
                   });
                   
@@ -67,18 +62,14 @@ document.addEventListener('DOMContentLoaded', function() {
           }
           console.log(selectedImages)
       }
-      
-      // Очищаем input, чтобы можно было выбрать те же файлы снова
       fileInput.value = '';
   });
 
   form.addEventListener('submit', function(e) {
       e.preventDefault();
-      
-      // Создаем FormData из формы
+
       const formData = new FormData(form);
       
-      // Добавляем все выбранные изображения
       selectedImages.forEach((image, index) => {
           formData.append(`images[${index}]`, image.file);
       });
@@ -105,7 +96,6 @@ document.addEventListener('DOMContentLoaded', function() {
               alert(msg);
               form.reset();
               pictureList.innerHTML = '';
-              // Очищаем массив после успешной отправки
               selectedImages.length = 0;
               window.location.reload();
           } else {

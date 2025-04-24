@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.0</title>
+    <title>Версия 0.3.1</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -28,7 +28,6 @@
       href="https://unpkg.com/simplebar@latest/dist/simplebar.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
     <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <link rel="stylesheet" href="/css/style.css" />
@@ -301,18 +300,41 @@
       </div>
 
       <div class="view__cabinet-menu" id="cabinet-menu" style="<?php echo $isAuth ? '' : 'display: none;'; ?>">
-        <button class="view__add-object-menu-btn" id="cabinet-menu-close">
-          <img src="/img/close.svg" alt="закрыть меню" />
-        </button>
+        <ul class="view__route-btn-list">
+          <li>
+            <a class="view__add-object-menu-btn" href="/include/logout.php">
+              <img src="/img/logout.svg" alt="выйти из аккаунта">
+            </a>
+          </li>
+          <li>
+            <button class="view__add-object-menu-btn" id="cabinet-menu-close">
+              <img src="/img/close.svg" alt="закрыть меню" />
+            </button>
+          </li>
+        </ul>
         <div class="view__form">
           <h2 class="view__title">Личный кабинет @<?php echo htmlspecialchars($user['nickname'] ?? ''); ?></h2>
-          <button class="view__form-btn" type="submit">
-            Избранные места
-          </button>
-          <button class="view__form-btn view__form-btn_white" type="button" id="accountExists">
-            Избранные маршруты
-          </button>
-          <a href="/include/logout.php" class="view__form-btn view__form-btn_red">Выйти</a>
+          <div class="view__favorite-chapters">
+            <h3 class="view__favorite-title">Избранные места</h3>
+            <h3 class="view__favorite-title">Избранные маршруты</h3>
+            <div class="favoriteScroll" data-simplebar>
+                <ul class="view__favorite-list" id="favoritePoints">
+                </ul>
+            </div>
+            <div class="favoriteScroll" data-simplebar>
+                <ul class="view__favorite-list" id="favoriteRoutes">
+                </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal" id="route-name-modal" style="display: none;">
+        <div class="modal-content">
+          <button class="close-modal-btn" id="close-route-name-modal">&times;</button>
+          <h2>Введите название маршрута</h2>
+          <input type="text" id="route-name-input" placeholder="Название маршрута">
+          <button id="confirm-route-name">Сохранить</button>
         </div>
       </div>
 
@@ -389,14 +411,21 @@
                   myPlacemark.swiperInstance = swiper;
 
                   const pointId = document.getElementById('informationId').value;
-                  attachFavoriteButtonHandler(pointId);
+                  
+                  // Привязываем обработчик с обновлением всех балунов
+                  const favoriteBtn = document.querySelector('#addFavoritePoint');
+                  if (favoriteBtn) {
+                    favoriteBtn.onclick = async () => {
+                      const result = await addToFavorites(pointId);
+                      if (result && result.success) {
+                        favoriteBtn.classList.toggle('baloon__favorite-grey', result.action !== 'added');
+                        favoriteBtn.classList.toggle('baloon__favorite-gold', result.action === 'added');
+                        window.updateAllOpenBalloons(pointId, result.action === 'added');
+                      }
+                    };
+                  }
 
-                  checkFavoriteStatus(pointId);
-                                  
-                  const script = document.createElement('script');
-                  script.src = '/js/addObjectInformation.js';
-                  document.body.appendChild(script);
-
+                  checkFavoriteStatus(pointId);                  
                   attachRouteButtonHandler(point.coordinates, point.name);
                 });
   
@@ -449,6 +478,7 @@
     <script src="/js/openAccountMenu.js"></script>
     <script src="/js/openRegistrationMenu.js"></script>
     <script src="/js/selectValue.js"></script>  
+    <script src="/js/loadFavoritesPoints.js"></script>
     <script>
       const element = document.querySelector("#selectCustom");
       const choises = new Choices(element, {
