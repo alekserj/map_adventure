@@ -4,7 +4,6 @@ require_once 'db.php';
 require_once 'functions.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Очистка и подготовка данных
     $data = [
         'nickname' => trim($_POST['registration-login'] ?? ''),
         'email' => trim($_POST['registration-email'] ?? ''),
@@ -14,14 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $errors = [];
 
-    // Валидация nickname
     if (empty($data['nickname'])) {
         $errors['nickname'] = 'Введите nickname';
     } elseif (strlen($data['nickname']) < 3) {
         $errors['nickname'] = 'Nickname должен быть не менее 3 символов';
     }
 
-    // Валидация email
     if (empty($data['email'])) {
         $errors['email'] = 'Введите email';
     } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
@@ -38,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Валидация пароля
     if (empty($data['password'])) {
         $errors['password'] = 'Введите пароль';
     } elseif (strlen($data['password']) < 6) {
@@ -47,20 +43,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['password'] = 'Пароли не совпадают';
     }
 
-    // Если ошибок нет, пробуем зарегистрировать пользователя
     if (empty($errors)) {
         try {
             $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
-            
-            // Проверяем, что хеш пароля создан успешно
+
             if (!$passwordHash) {
                 throw new Exception('Ошибка при создании хеша пароля');
             }
 
             $stmt = $pdo->prepare("INSERT INTO users (nickname, email, password) VALUES (?, ?, ?)");
             $result = $stmt->execute([$data['nickname'], $data['email'], $passwordHash]);
-            
-            // Проверяем, что запрос выполнен успешно и затронул 1 строку
+
             if (!$result || $stmt->rowCount() !== 1) {
                 throw new Exception('Ошибка при добавлении пользователя в базу данных');
             }
@@ -78,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Если есть ошибки, сохраняем их и возвращаем пользователя назад
     if (!empty($errors)) {
         $_SESSION['validation'] = $errors;
         $_SESSION['old'] = $data;
@@ -86,7 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 } else {
-    // Если запрос не POST, перенаправляем
     header('Location: /');
     exit;
 }

@@ -11,7 +11,6 @@ $response = [
 ];
 
 try {
-    // Проверка авторизации
     if (!isset($_SESSION['user'])) {
         $response['message'] = 'Требуется авторизация';
         http_response_code(401);
@@ -20,8 +19,7 @@ try {
     }
 
     $userId = $_SESSION['user']['id'];
-    
-    // Используем ST_AsText для преобразования GEOMETRY в текст
+
     $stmt = $pdo->prepare("
         SELECT 
             p.id, 
@@ -41,13 +39,12 @@ try {
 
     $points = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Преобразуем POINT(lon lat) в массив координат
     foreach ($points as &$point) {
         if (preg_match('/POINT\(([^ ]+) ([^ ]+)\)/', $point['geo_text'], $matches)) {
             $point['longitude'] = (float)$matches[1];
             $point['latitude'] = (float)$matches[2];
         }
-        unset($point['geo_text']); // Удаляем временное поле
+        unset($point['geo_text']); 
     }
 
     $response = [
@@ -65,7 +62,6 @@ try {
     http_response_code(400);
 }
 
-// Гарантированный JSON вывод
 echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK);
 exit;
 ?>

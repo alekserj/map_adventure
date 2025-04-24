@@ -3,7 +3,6 @@ session_start();
 require_once 'db.php';
 require_once 'functions.php';
 
-// Очистка предыдущих данных
 $_SESSION['validation'] = [];
 $_SESSION['error'] = '';
 $_SESSION['old'] = [];
@@ -13,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['account-password'] ?? '');
     $errors = [];
 
-    // 1. Валидация полей
     if (empty($email)) {
         $errors['email'] = 'Введите email';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -24,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['password'] = 'Введите пароль';
     }
 
-    // Если есть ошибки валидации - сохраняем и выходим
     if (!empty($errors)) {
         $_SESSION['validation'] = $errors;
         $_SESSION['old']['email'] = $email;
@@ -32,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // 2. Проверка пользователя в БД (только если валидация успешна)
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
@@ -44,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // 3. Проверка пароля
     if (!password_verify($password, $user['password'])) {
         $_SESSION['error'] = 'Неверный пароль';
         $_SESSION['old']['email'] = $email;
@@ -52,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Успешная авторизация
     $_SESSION['user'] = [
         'id' => $user['id'],
         'nickname' => $user['nickname'],

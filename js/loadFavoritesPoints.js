@@ -81,7 +81,6 @@ class FavoritePointsLoader {
             const data = await response.json();
             
             if (data.success) {
-                // Сохраняем информацию о последней удаленной точке
                 window.lastRemovedPoint = point;
                 
                 element.style.transition = 'opacity 0.3s, transform 0.3s';
@@ -90,18 +89,14 @@ class FavoritePointsLoader {
                 
                 setTimeout(() => {
                     element.remove();
-                    
-                    // Обновляем кнопку в балуне
                     if (window.updateFavoriteButtonInBalloon) {
                         window.updateFavoriteButtonInBalloon(pointId, false);
                     }
-                    
-                    // Закрываем и переоткрываем балун
+
                     if (window.reopenBalloonForPoint) {
                         window.reopenBalloonForPoint(point);
                     }
-                    
-                    // Обновляем список избранных точек
+
                     this.loadFavoritePoints();
                 }, 300);
             } else {
@@ -131,7 +126,6 @@ class FavoritePointsLoader {
     }
 }
 
-// Инициализация
 document.addEventListener('DOMContentLoaded', () => {
     new FavoritePointsLoader();
 });
