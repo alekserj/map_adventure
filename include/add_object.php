@@ -1,4 +1,10 @@
 <?php
+session_start();
+
+if (!isset($_SESSION['user'])) {
+    die();
+}
+
 $servername = "localhost"; 
 $username = "root"; 
 $password = ""; 

@@ -1,12 +1,22 @@
 <?php
+    session_start();
     require_once 'include/data.php';
-    require_once __DIR__ . '/include/helpers.php';
+    require_once 'include/functions.php';
+    
+    $isAuth = isset($_SESSION['user']);
+    $user = $_SESSION['user'] ?? null;
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+      if (function_exists('clearValidation')) {
+          clearValidation();
+      }
+  }
 ?>
 <!DOCTYPE html>
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.2.4</title>
+    <title>Версия 0.3.1</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -18,7 +28,6 @@
       href="https://unpkg.com/simplebar@latest/dist/simplebar.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
     <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <link rel="stylesheet" href="/css/style.css" />
@@ -37,7 +46,7 @@
             </button>
           </li>
           <li class="view__item">
-            <button class="view__add-object-menu-btn">
+            <button class="view__add-object-menu-btn" id="filter">
               <img  src="/img/filter.svg" alt="фильтр" />
             </button>
           </li>
@@ -55,16 +64,25 @@
       </nav>
 
       <div class="view__route-menu" id="route-menu">
-        <button class="view__add-object-menu-btn" id="route-menu-close">
-          <img src="/img/close.svg" alt="закрыть меню" />
-        </button>
+        <ul class="view__route-btn-list">
+          <li>
+            <button class="view__add-object-menu-btn" id="route-menu-close">
+              <img src="/img/collapse.svg" alt="cвернуть меню" />
+            </button>
+          </li>
+          <li>
+            <button class="view__add-object-menu-btn" id="reset-route">
+              <img src="/img/close.svg" alt="закрыть меню" />
+            </button>
+          </li>
+        </ul>
         <form
           class="view__form"
           id="route-form"
         >
         <h2 class="view__title">Маршрут</h2>
         <ul id="route-list" class="route-list"></ul>
-        <button class="view__form-btn" type="button" id="reset-route">Сбросить маршрут</button>
+        <button class="view__form-btn" type="button" id="addFavoriteRoute">Добавить в избранное</button>
         <h2 class="view__title">Тип маршрута:</h2>
         <ul class="route__list-btn" id="route-type-buttons">
           <li><button type="button" data-type="auto" class="route-btn active">Автомобиль</button></li>
@@ -73,6 +91,23 @@
         </ul>
         </form>
       </div>
+
+      <div class="view__filter-menu" id="filter-menu">
+      <button class="view__add-object-menu-btn" id="filter-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <form class="view__form" id="filter-form">
+          <h2 class="view__title">Фильтр достопримечательностей</h2>
+          <ul class="filter__checkbox-list">
+            <li><label><input type="checkbox" value="Музеи" checked /> Музеи</label></li>
+            <li><label><input type="checkbox" value="Культурные" checked /> Культурные</label></li>
+            <li><label><input type="checkbox" value="Архитектурные" checked /> Архитектурные</label></li>
+            <li><label><input type="checkbox" value="Природные" checked /> Природные</label></li>
+            <li><label><input type="checkbox" value="Религиозные" checked /> Религиозные</label></li>
+          </ul>
+        </form>
+      </div>
+
 
       <div class="view__add-object-menu" id="add-object-menu">
         <button class="view__add-object-menu-btn" id="plus-close">
@@ -166,55 +201,58 @@
         </form>
       </div>
 
-      <div class="view__account-menu" id="account-menu">
+      <div class="view__account-menu" id="account-menu" style="<?php echo $isAuth ? 'display: none;' : ''; ?>">
         <button class="view__add-object-menu-btn" id="account-menu-close">
-          <img src="/img/close.svg" alt="закрыть меню" />
+            <img src="/img/close.svg" alt="закрыть меню" />
         </button>
-        
-        <form
-          class="view__form"
-          id="account-form"
-          method="post"
-          action="/include/login.php"
-        >
-          <h2 class="view__title">Войти в Личный кабинет</h2>
+        <form class="view__form" id="account-form" method="post" action="/include/login.php">
+          <h2 class="view__title">Войти в Личный кабинет</h2>     
           <div class="view__account-section">
-            <strong class = "view__account-title">Введите E-mail</strong>
-            <input
-              class="view_input"
-              type="text"
-              placeholder="E-mail"
-              name="account-login"
-              id = "account-login"
-              value = "<?php echo old('email')?>"
-              <?php validationErrorAttr('email');?>
-            />
-            <div>
-              <?php if(hasValidationError('email')):?>
-                <small class="view__validation-error"><?php validationErrorMessage('email');?></small>
-              <?php endif;?>
-            </div>
+              <strong class="view__account-title">Введите E-mail</strong>
+              <input
+                  class="view_input <?php echo hasValidationError('email') ? 'is-invalid' : ''; ?>"
+                  type="email"
+                  placeholder="E-mail"
+                  name="account-login"
+                  value="<?php echo old('email'); ?>"
+              />
+              <?php if(hasValidationError('email')): ?>
+                  <small class="view__validation-error">
+                      <?php echo validationErrorMessage('email'); ?>
+                  </small>
+              <?php endif; ?>
           </div>
           <div class="view__account-section">
-            <strong class = "view__account-title">Введите пароль</strong>
-            <input
-              class="view_input"
-              type="password"
-              placeholder = "Пароль"
-              name="account-password"
-              id="account-password"
-            />
-          <button class="view__account-btn">Забыли пароль?</button>
+              <strong class="view__account-title">Введите пароль</strong>
+              <input
+                  class="view_input <?php echo hasValidationError('password') ? 'is-invalid' : ''; ?>"
+                  type="password"
+                  placeholder="Пароль"
+                  name="account-password"
+              />
+              <?php if(hasValidationError('password')): ?>
+                  <small class="view__validation-error">
+                      <?php echo validationErrorMessage('password'); ?>
+                  </small>
+              <?php endif; ?>
+              <button class="view__account-btn">Забыли пароль?</button>
           </div>
-          <?php if(hasMessage('error')):?>
-          <div class="view__account-error"><?php echo getMessage('error');?></div>
-          <?php endif;?>
-          <button class="view__form-btn" type="submit" id="">
-            Войти
-          </button>
-          <button class="view__form-btn view__form-btn_white" type="button" id="createAccount">
-            Создать аккаунт
-          </button>
+          <?php if(hasMessage('error') || !empty($_SESSION['validation'])): ?>
+              <div class="view__account-error">
+                  <?php 
+                  if(hasMessage('error')) {
+                      echo getMessage('error') . '<br>';
+                  }
+                  if(!empty($_SESSION['validation'])) {
+                      foreach($_SESSION['validation'] as $error) {
+                          echo htmlspecialchars($error) . '<br>';
+                      }
+                  }
+                  ?>
+              </div>
+          <?php endif; ?>
+          <button class="view__form-btn" type="submit">Войти</button>
+          <button class="view__form-btn view__form-btn_white" type="button" id="createAccount">Создать аккаунт</button>
         </form>
       </div>
 
@@ -237,12 +275,7 @@
               placeholder="Nickname"
               name="registration-login"
               id = "registration-login"
-              value = "<?php echo old('nick')?>"
-              <?php validationErrorAttr('name');?>
             />
-            <?php if(hasValidationError('name')):?>
-              <small class="view__validation-error"><?php validationErrorMessage('name');?></small>
-            <?php endif;?>
           </div>
           <div class="view__account-section">
             <strong class = "view__account-title">Введите ваш E-mail</strong>
@@ -252,12 +285,7 @@
               placeholder="E-mail"
               name="registration-email"
               id = "registration-email"
-              value = "<?php echo old('email')?>"
-              <?php validationErrorAttr('email');?>
             />
-            <?php if(hasValidationError('email')):?>
-              <small class="view__validation-error"><?php validationErrorMessage('email');?></small>
-            <?php endif;?>
           </div>
           <div class="view__account-section">
             <strong class = "view__account-title">Придумайте пароль</strong>
@@ -267,11 +295,7 @@
               placeholder = "Пароль"
               name="registration-password"
               id="registration-password"
-              <?php validationErrorAttr('password');?>
             />
-            <?php if(hasValidationError('password')):?>
-              <small class="view__validation-error"><?php validationErrorMessage('password');?></small>
-            <?php endif;?>
           </div>
           <div class="view__account-section">
             <strong class = "view__account-title">Подтвердите пароль</strong>
@@ -292,18 +316,42 @@
         </form>
       </div>
 
-      <div class="view__cabinet-menu" id="cabinet-menu">
-        <button class="view__add-object-menu-btn" id="cabinet-menu-close">
-          <img src="/img/close.svg" alt="закрыть меню" />
-        </button>
+      <div class="view__cabinet-menu" id="cabinet-menu" style="<?php echo $isAuth ? '' : 'display: none;'; ?>">
+        <ul class="view__route-btn-list">
+          <li>
+            <a class="view__add-object-menu-btn" href="/include/logout.php">
+              <img src="/img/logout.svg" alt="выйти из аккаунта">
+            </a>
+          </li>
+          <li>
+            <button class="view__add-object-menu-btn" id="cabinet-menu-close">
+              <img src="/img/close.svg" alt="закрыть меню" />
+            </button>
+          </li>
+        </ul>
         <div class="view__form">
-          <h2 class="view__title">Личный кабинет @пользователя</h2>
-          <button class="view__form-btn" type="submit">
-            Избранные места
-          </button>
-          <button class="view__form-btn view__form-btn_white" type="button" id="accountExists">
-            Избранные маршруты
-          </button>
+          <h2 class="view__title">Личный кабинет @<?php echo htmlspecialchars($user['nickname'] ?? ''); ?></h2>
+          <div class="view__favorite-chapters">
+            <h3 class="view__favorite-title">Избранные места</h3>
+            <h3 class="view__favorite-title">Избранные маршруты</h3>
+            <div class="favoriteScroll" data-simplebar>
+                <ul class="view__favorite-list" id="favoritePoints">
+                </ul>
+            </div>
+            <div class="favoriteScroll" data-simplebar>
+                <ul class="view__favorite-list" id="favoriteRoutes">
+                </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal" id="route-name-modal" style="display: none;">
+        <div class="modal-content">
+          <button class="close-modal-btn" id="close-route-name-modal">&times;</button>
+          <h2>Введите название маршрута</h2>
+          <input type="text" id="route-name-input" placeholder="Название маршрута">
+          <button id="confirm-route-name">Сохранить</button>
         </div>
       </div>
 
@@ -325,14 +373,19 @@
         //удаление кнопок "Открыть в Яндекс картах", "Создать свою карту" и "Доехать на такси", а также удаление плашки с условиями пользования Яндекс сделано через CSS
 
         setMapInstance(myMap);
-
+    
         var points = <?php echo json_encode($points); ?>;
+
+        window.placemarks = [];
 
         points.forEach(function(point) {
           var content = `
             ${point.swiperHtml}
             <div>
-              <h1 class="baloon__title">${point.name}</h1>
+              <h1 class="baloon__title">
+                ${point.name}
+                <button class="baloon__favorite baloon__favorite-grey" id="addFavoritePoint"></button>
+              </h1>
               <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
               <p><strong>Описание:</strong> ${point.description || 'Не указано'}</p> 
@@ -375,11 +428,23 @@
                     },
                   });
                   myPlacemark.swiperInstance = swiper;
-                                  
-                  const script = document.createElement('script');
-                  script.src = '/js/addObjectInformation.js';
-                  document.body.appendChild(script);
 
+                  const pointId = document.getElementById('informationId').value;
+                  
+                  // Привязываем обработчик с обновлением всех балунов
+                  const favoriteBtn = document.querySelector('#addFavoritePoint');
+                  if (favoriteBtn) {
+                    favoriteBtn.onclick = async () => {
+                      const result = await addToFavorites(pointId);
+                      if (result && result.success) {
+                        favoriteBtn.classList.toggle('baloon__favorite-grey', result.action !== 'added');
+                        favoriteBtn.classList.toggle('baloon__favorite-gold', result.action === 'added');
+                        window.updateAllOpenBalloons(pointId, result.action === 'added');
+                      }
+                    };
+                  }
+
+                  checkFavoriteStatus(pointId);                  
                   attachRouteButtonHandler(point.coordinates, point.name);
                 });
   
@@ -392,12 +457,43 @@
 
             
               });
-              myMap.geoObjects.add(myPlacemark); // Добавление метки на карту
+              const activeCategories = Array.from(document.querySelectorAll('#filter-form input[type="checkbox"]:checked')).map(cb => cb.value);
+              const isInitiallyVisible = activeCategories.includes(point.category);
+
+              if (isInitiallyVisible) {
+                myMap.geoObjects.add(myPlacemark);
+              }
+
+              window.placemarks.push({
+                placemark: myPlacemark,
+                category: point.category,
+                isOnMap: isInitiallyVisible,
+              });
             });
 
         document.getElementById("plus").addEventListener("click", function () {
           addPlacemark(myMap);
         });
+      }
+
+      function checkFavoriteStatus(pointId) {
+        fetch('/include/auth.php')
+          .then(response => response.json())
+          .then(data => {
+            if (!data.isAuth) return;
+            
+            fetch(`/include/check_favorite.php?point_id=${pointId}`)
+              .then(response => response.json())
+              .then(data => {
+                if (data.isFavorite) {
+                  const button = document.querySelector('#addFavoritePoint');
+                  if (button) {
+                    button.classList.remove('baloon__favorite-grey');
+                    button.classList.add('baloon__favorite-gold');
+                  }
+                }
+              });
+          });
       }
     </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -406,11 +502,15 @@
     <script src="/js/addObject.js"></script>
     <script src="/js/addObjectPicture.js"></script>
     <script src="/js/choices.min.js"></script>
+    <script src="/js/favoritePoint.js"></script>
     <script src="/js/openRouteMenu.js"></script>
+    <script src="/js/openFilterMenu.js"></script>
     <script src="/js/openAddMenu.js"></script>
     <script src="/js/openAccountMenu.js"></script>
     <script src="/js/openRegistrationMenu.js"></script>
     <script src="/js/selectValue.js"></script>  
+    <script src="/js/loadFavoritesPoints.js"></script>
+    <script src="/js/Filter.js"></script>
     <script>
       const element = document.querySelector("#selectCustom");
       const choises = new Choices(element, {
