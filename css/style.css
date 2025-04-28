@@ -577,3 +577,18 @@ a {
   accent-color: #000;
   cursor: pointer;
 }
+
+#route-info {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.route-info__distance,
+.route-info__time {
+  margin: 4px 0;
+}
+
+.route-info p {
+  margin: 5px 0;
+}

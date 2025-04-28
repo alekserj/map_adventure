@@ -89,6 +89,12 @@
           <li><button type="button" data-type="pedestrian" class="route-btn">Пешком</button></li>
           <li><button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button></li>
         </ul>
+        <button type="button" class="view__form-btn" id="optimize-route-btn">Оптимизировать маршрут</button>
+        <div class="route-info" id="route-info">
+          <p class="route-info__distance">Длина маршрута: 0 км</p>
+          <p class="route-info__time">Время в пути: 0 мин</p>
+        </div>
+
         </form>
       </div>
 

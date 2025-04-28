@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', setupRouteTypeButtons);
 document.addEventListener('DOMContentLoaded', setupResetButton);
 document.addEventListener('DOMContentLoaded', setupRouteModalHandlers);
 
+
 let mapInstance = null;
 let routePoints = [];
 let currentRoute = null;
@@ -23,7 +24,66 @@ function setupRouteTypeButtons() {
       }
     });
   });
+
+  document.getElementById('optimize-route-btn').addEventListener('click', optimizeRoute);
 }
+
+function optimizeRoute() {
+  if (!routePoints || routePoints.length <= 1) return;
+
+  // Алгоритм ближайшего соседа для оптимизации маршрута
+  const optimizedRoute = [routePoints[0]]; // Начинаем с первой точки
+  const remainingPoints = [...routePoints.slice(1)]; // Все остальные точки
+
+  let lastPoint = optimizedRoute[0];
+
+  while (remainingPoints.length > 0) {
+    let closestPointIndex = -1;
+    let minDistance = Infinity;
+
+    // Находим ближайшую точку
+    remainingPoints.forEach((point, index) => {
+      const distance = getDistance(lastPoint.coords, point.coords);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPointIndex = index;
+      }
+    });
+
+    // Добавляем ближайшую точку в оптимизированный маршрут
+    optimizedRoute.push(remainingPoints[closestPointIndex]);
+    lastPoint = remainingPoints[closestPointIndex];
+    remainingPoints.splice(closestPointIndex, 1); // Удаляем выбранную точку
+  }
+
+  // Обновляем список точек маршрута и пересчитываем маршрут
+  routePoints = optimizedRoute;
+  drawCustomRoute();
+  updateRouteListUI();
+}
+
+// Функция для вычисления расстояния между двумя точками
+function getDistance(coords1, coords2) {
+  const [lat1, lon1] = coords1;
+  const [lat2, lon2] = coords2;
+
+  const R = 6371; // Радиус Земли в км
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  
+  return R * c; // Расстояние в км
+}
+
+function toRad(degrees) {
+  return degrees * (Math.PI / 180);
+}
+
 
 function attachRouteButtonHandler(destinationCoords, balloonTitle) {
   setTimeout(() => {
@@ -35,6 +95,9 @@ function attachRouteButtonHandler(destinationCoords, balloonTitle) {
       };
     }
   }, 100);
+
+  
+
 }
 
 function addRoutePoint(coords, balloonTitle) {
@@ -71,6 +134,11 @@ function addRoutePoint(coords, balloonTitle) {
 function drawCustomRoute() {
   if (!mapInstance) return;
 
+  if (routePoints.length < 2) {
+    resetRoute();
+    return;
+  }
+
   if (currentRoute) {
     mapInstance.geoObjects.remove(currentRoute);
   }
@@ -83,12 +151,43 @@ function drawCustomRoute() {
   }, {
     boundsAutoApply: true
   });
+
   mapInstance.geoObjects.add(multiRoute);
   currentRoute = multiRoute;
+
+  multiRoute.model.events.add('requestsuccess', function() {
+    const activeRoute = multiRoute.getActiveRoute();
+    if (activeRoute) {
+      const distanceInMeters = activeRoute.properties.get('distance').value;
+      const timeInSeconds = activeRoute.properties.get('duration').value;
+
+      const distanceInKm = (distanceInMeters / 1000).toFixed(1);
+      const timeInMinutes = Math.ceil(timeInSeconds / 60);
+
+      const routeInfoElement = document.getElementById('route-info');
+      if (routeInfoElement) {
+        routeInfoElement.innerHTML = ` 
+          <p class="route-info__distance">Длина маршрута: ${distanceInKm} км</p>
+          <p class="route-info__time">Время в пути: ${formatTime(timeInMinutes)}</p>
+        `;
+        routeInfoElement.style.display = 'block';
+      }
+    }
+  });
 
   setTimeout(updateRouteListUI, 50);
   enableRouteListSorting();
   getAddressesForRoutePoints();
+}
+
+
+function formatTime(minutes) {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours > 0) {
+    return `${hours} ч ${mins} мин`;
+  }
+  return `${mins} мин`;
 }
 
 function openRouteMenu() {
@@ -181,8 +280,14 @@ function resetRoute() {
   if (currentRoute) {
     mapInstance.geoObjects.remove(currentRoute);
     currentRoute = null;
+    
+    const routeInfoElement = document.getElementById('route-info');
+    if (routeInfoElement) {
+      routeInfoElement.style.display = 'none';
+    }
   }
   updateRouteListUI();
+  
 }
 
 function removeRoutePoint(index) {
@@ -191,6 +296,11 @@ function removeRoutePoint(index) {
 }
 
 function setupRouteModalHandlers() {
+  const routeInfoElement = document.getElementById('route-info');
+    if (routeInfoElement) {
+      routeInfoElement.style.display = 'none';
+    }
+
   const addFavoriteBtn = document.getElementById('addFavoriteRoute');
   if (addFavoriteBtn) {
     addFavoriteBtn.addEventListener('click', showRouteNameModal);
