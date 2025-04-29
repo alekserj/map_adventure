@@ -4,13 +4,17 @@ function loadFavoriteRoutes() {
     fetch('../include/get_favorite_routes.php')
         .then(response => response.json())
         .then(data => {
-            if (data.success && data.routes.length > 0) {
-                renderFavoriteRoutes(data.routes);
-            } else if (!data.success) {
+            if (data.success) {
+                renderFavoriteRoutes(data.routes || []);
+            } else {
                 console.error('Error loading routes:', data.message);
+                renderFavoriteRoutes([]);
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            renderFavoriteRoutes([]);
+        });
 }
 
 function renderFavoriteRoutes(routes) {
@@ -19,9 +23,17 @@ function renderFavoriteRoutes(routes) {
 
     routesList.innerHTML = '';
 
+    if (!routes || routes.length === 0) {
+        const emptyItem = document.createElement('li');
+        emptyItem.className = 'no-points';
+        emptyItem.textContent = 'Нет избранных маршрутов';
+        routesList.appendChild(emptyItem);
+        return;
+    }
+
     routes.forEach(route => {
         const li = document.createElement('li');
-        li.className = 'view__favorite-item';
+        li.className = 'favorite-point-item';
         li.dataset.routeId = route.id;
         
         const routeElement = document.createElement('div');
@@ -36,7 +48,7 @@ function renderFavoriteRoutes(routes) {
         type.textContent = getRouteTypeName(route.type);
         
         const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'view__favorite-delete';
+        deleteBtn.className = 'remove-point-btn';
         deleteBtn.innerHTML = '×';
         deleteBtn.onclick = (e) => {
             e.stopPropagation();
@@ -48,7 +60,13 @@ function renderFavoriteRoutes(routes) {
         li.appendChild(routeElement);
         li.appendChild(deleteBtn);
         
-        li.addEventListener('click', () => loadRouteToMap(route));
+        li.addEventListener('click', () => {
+            loadRouteToMap(route);
+            const cabinetMenu = document.getElementById('cabinet-menu');
+            if (cabinetMenu) {
+                cabinetMenu.classList.toggle("menu-is-active");
+            }
+        });
         
         routesList.appendChild(li);
     });
@@ -64,30 +82,58 @@ function getRouteTypeName(type) {
 }
 
 function loadRouteToMap(route) {
-    // Очищаем текущий маршрут
     resetRoute();
-    
-    // Конвертируем точки в формат для маршрута
-    routePoints = route.points.map(point => ({
-        coords: [point.lat, point.lon],
-        name: `Точка маршрута`,
-        address: ''
-    }));
-    
-    // Устанавливаем тип маршрута
-    currentRouteType = route.type;
-    document.querySelectorAll('.route-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.type === route.type);
-    });
-    
-    // Рисуем маршрут
-    drawCustomRoute();
-    
-    // Открываем меню маршрута
-    document.getElementById('route-menu').classList.add('menu-is-active');
-    
-    // Обновляем информацию о маршруте
-    updateRouteListUI();
+    routePoints = [];
+
+    if (route.points.length > 0) {
+        const firstPoint = route.points[0];
+        routePoints.push({
+            coords: [firstPoint.lat, firstPoint.lon],
+            name: 'Стартовая точка',
+            address: '',
+            isStartPoint: true
+        });
+
+        const promises = route.points.slice(1).map(point => {
+            return new Promise(resolve => {
+                getPointNameFromDB([point.lat, point.lon], (name) => {
+                    resolve({
+                        coords: [point.lat, point.lon],
+                        name: name || `Точка маршрута`,
+                        address: ''
+                    });
+                });
+            });
+        });
+        
+        Promise.all(promises).then(points => {
+            routePoints = routePoints.concat(points);
+
+            currentRouteType = route.type;
+            document.querySelectorAll('.route-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.type === route.type);
+            });
+
+            drawCustomRoute();
+
+            document.getElementById('route-menu').classList.add('menu-is-active');
+
+            updateRouteListUI();
+        });
+    }
+}
+
+function getPointNameFromDB(coords, callback) {
+    fetch(`/include/get_point_name.php?lat=${coords[0]}&lon=${coords[1]}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.name) {
+                callback(data.name);
+            } else {
+                callback(null);
+            }
+        })
+        .catch(() => callback(null));
 }
 
 function deleteFavoriteRoute(routeId) {
@@ -103,9 +149,7 @@ function deleteFavoriteRoute(routeId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Удаляем элемент из списка
             document.querySelector(`#favoriteRoutes li[data-route-id="${routeId}"]`)?.remove();
-            // Если удаляемый маршрут сейчас отображен, очищаем карту
             if (currentRoute && currentRoute.properties?.get('routeId') === routeId) {
                 resetRoute();
             }

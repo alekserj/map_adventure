@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Апр 24 2025 г., 18:47
+-- Время создания: Апр 29 2025 г., 20:04
 -- Версия сервера: 8.0.30
 -- Версия PHP: 7.2.34
 
@@ -33,6 +33,14 @@ CREATE TABLE `favorite_points` (
   `user_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `favorite_points`
+--
+
+INSERT INTO `favorite_points` (`id`, `point_id`, `user_id`) VALUES
+(198, 32, 1),
+(201, 34, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -46,6 +54,13 @@ CREATE TABLE `favorite_routes` (
   `route_type` text NOT NULL,
   `user_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `favorite_routes`
+--
+
+INSERT INTO `favorite_routes` (`id`, `name`, `route`, `route_type`, `user_id`) VALUES
+(12, 'маршрут', 0xe6100000010200000004000000832f4ca60ade494071ac8bdb681842400de36e10addd494014048f6fef1642408cbe823463df49404012f6ed2418424020d5b0df13e549400c3b8c497f154240, 'auto', 1);
 
 -- --------------------------------------------------------
 
@@ -195,13 +210,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `favorite_points`
 --
 ALTER TABLE `favorite_points`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=202;
 
 --
 -- AUTO_INCREMENT для таблицы `favorite_routes`
 --
 ALTER TABLE `favorite_routes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT для таблицы `pictures`

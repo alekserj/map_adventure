@@ -105,21 +105,64 @@ function addRoutePoint(coords, balloonTitle) {
     navigator.geolocation.getCurrentPosition(
       pos => {
         const from = [pos.coords.latitude, pos.coords.longitude];
-        routePoints.push({ coords: from, name: 'Стартовая точка', address: '' });
-        routePoints.push({ coords, name: balloonTitle, address: '' });
-        drawCustomRoute();
+        routePoints.push({ 
+          coords: from, 
+          name: 'Стартовая точка', 
+          address: '',
+          isStartPoint: true 
+        });
+
+        getPointNameFromDB(coords, (name) => {
+          routePoints.push({ 
+            coords, 
+            name: name || balloonTitle, 
+            address: '' 
+          });
+          drawCustomRoute();
+        });
       },
       () => {
         const fallback = [51.7347, 36.1907];
-        routePoints.push({ coords: fallback, name: 'Стартовая точка', address: '' });
-        routePoints.push({ coords, name: balloonTitle, address: '' });
-        drawCustomRoute();
+        routePoints.push({ 
+          coords: fallback, 
+          name: 'Стартовая точка', 
+          address: '',
+          isStartPoint: true 
+        });
+
+        getPointNameFromDB(coords, (name) => {
+          routePoints.push({ 
+            coords, 
+            name: name || balloonTitle, 
+            address: '' 
+          });
+          drawCustomRoute();
+        });
       }
     );
   } else {
-    routePoints.push({ coords, name: balloonTitle, address: '' });
-    drawCustomRoute();
+    getPointNameFromDB(coords, (name) => {
+      routePoints.push({ 
+        coords, 
+        name: name || balloonTitle, 
+        address: '' 
+      });
+      drawCustomRoute();
+    });
   }
+}
+
+function getPointNameFromDB(coords, callback) {
+  fetch(`/include/get_point_name.php?lat=${coords[0]}&lon=${coords[1]}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.name) {
+        callback(data.name);
+      } else {
+        callback(null);
+      }
+    })
+    .catch(() => callback(null));
 }
 
 function drawCustomRoute() {
@@ -143,7 +186,6 @@ function drawCustomRoute() {
     boundsAutoApply: true
   });
 
-  // Добавлено сохранение routeId для маршрутов из избранного
   if (window.currentRouteId) {
     multiRoute.properties.set('routeId', window.currentRouteId);
   }
@@ -360,6 +402,7 @@ function saveFavoriteRouteWithName() {
       alert('Маршрут "' + routeName + '" успешно сохранен в избранное');
       hideRouteNameModal();
       document.getElementById('route-name-input').value = '';
+      loadFavoriteRoutes();
     } else {
       alert('Ошибка при сохранении маршрута: ' + data.message);
     }
