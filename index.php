@@ -515,6 +515,7 @@
     <script src="/js/openRegistrationMenu.js"></script>
     <script src="/js/selectValue.js"></script>  
     <script src="/js/loadFavoritesPoints.js"></script>
+    <script src="/js/loadFavoritesRoutes.js"></script>
     <script src="/js/Filter.js"></script>
     <script>
       const element = document.querySelector("#selectCustom");

@@ -592,3 +592,45 @@ a {
 .route-info p {
   margin: 5px 0;
 }
+
+.view__favorite-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.view__favorite-item:hover {
+  background-color: #f5f5f5;
+}
+
+.view__favorite-element {
+  flex-grow: 1;
+}
+
+.view__favorite-name {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.view__favorite-type {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.view__favorite-delete {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+.view__favorite-delete:hover {
+  color: #f00;
+}

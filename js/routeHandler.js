@@ -31,9 +31,8 @@ function setupRouteTypeButtons() {
 function optimizeRoute() {
   if (!routePoints || routePoints.length <= 1) return;
 
-  // Алгоритм ближайшего соседа для оптимизации маршрута
-  const optimizedRoute = [routePoints[0]]; // Начинаем с первой точки
-  const remainingPoints = [...routePoints.slice(1)]; // Все остальные точки
+  const optimizedRoute = [routePoints[0]];
+  const remainingPoints = [...routePoints.slice(1)];
 
   let lastPoint = optimizedRoute[0];
 
@@ -41,7 +40,6 @@ function optimizeRoute() {
     let closestPointIndex = -1;
     let minDistance = Infinity;
 
-    // Находим ближайшую точку
     remainingPoints.forEach((point, index) => {
       const distance = getDistance(lastPoint.coords, point.coords);
       if (distance < minDistance) {
@@ -50,24 +48,21 @@ function optimizeRoute() {
       }
     });
 
-    // Добавляем ближайшую точку в оптимизированный маршрут
     optimizedRoute.push(remainingPoints[closestPointIndex]);
     lastPoint = remainingPoints[closestPointIndex];
-    remainingPoints.splice(closestPointIndex, 1); // Удаляем выбранную точку
+    remainingPoints.splice(closestPointIndex, 1);
   }
 
-  // Обновляем список точек маршрута и пересчитываем маршрут
   routePoints = optimizedRoute;
   drawCustomRoute();
   updateRouteListUI();
 }
 
-// Функция для вычисления расстояния между двумя точками
 function getDistance(coords1, coords2) {
   const [lat1, lon1] = coords1;
   const [lat2, lon2] = coords2;
 
-  const R = 6371; // Радиус Земли в км
+  const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
 
@@ -77,13 +72,12 @@ function getDistance(coords1, coords2) {
     Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   
-  return R * c; // Расстояние в км
+  return R * c;
 }
 
 function toRad(degrees) {
   return degrees * (Math.PI / 180);
 }
-
 
 function attachRouteButtonHandler(destinationCoords, balloonTitle) {
   setTimeout(() => {
@@ -95,9 +89,6 @@ function attachRouteButtonHandler(destinationCoords, balloonTitle) {
       };
     }
   }, 100);
-
-  
-
 }
 
 function addRoutePoint(coords, balloonTitle) {
@@ -152,6 +143,11 @@ function drawCustomRoute() {
     boundsAutoApply: true
   });
 
+  // Добавлено сохранение routeId для маршрутов из избранного
+  if (window.currentRouteId) {
+    multiRoute.properties.set('routeId', window.currentRouteId);
+  }
+
   mapInstance.geoObjects.add(multiRoute);
   currentRoute = multiRoute;
 
@@ -179,7 +175,6 @@ function drawCustomRoute() {
   enableRouteListSorting();
   getAddressesForRoutePoints();
 }
-
 
 function formatTime(minutes) {
   const hours = Math.floor(minutes / 60);
@@ -287,7 +282,6 @@ function resetRoute() {
     }
   }
   updateRouteListUI();
-  
 }
 
 function removeRoutePoint(index) {
