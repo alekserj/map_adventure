@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.1</title>
+    <title>Версия 0.3.2</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -46,7 +46,7 @@
             </button>
           </li>
           <li class="view__item">
-            <button class="view__add-object-menu-btn">
+            <button class="view__add-object-menu-btn" id="filter">
               <img  src="/img/filter.svg" alt="фильтр" />
             </button>
           </li>
@@ -89,6 +89,28 @@
           <li><button type="button" data-type="pedestrian" class="route-btn">Пешком</button></li>
           <li><button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button></li>
         </ul>
+        <button type="button" class="view__form-btn" id="optimize-route-btn">Оптимизировать маршрут</button>
+        <div class="route-info" id="route-info">
+          <p class="route-info__distance">Длина маршрута: 0 км</p>
+          <p class="route-info__time">Время в пути: 0 мин</p>
+        </div>
+
+        </form>
+      </div>
+
+      <div class="view__filter-menu" id="filter-menu">
+      <button class="view__add-object-menu-btn" id="filter-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <form class="view__form" id="filter-form">
+          <h2 class="view__title">Фильтр достопримечательностей</h2>
+          <ul class="filter__checkbox-list">
+            <li><label><input type="checkbox" value="Музеи" checked /> Музеи</label></li>
+            <li><label><input type="checkbox" value="Культурные" checked /> Культурные</label></li>
+            <li><label><input type="checkbox" value="Архитектурные" checked /> Архитектурные</label></li>
+            <li><label><input type="checkbox" value="Природные" checked /> Природные</label></li>
+            <li><label><input type="checkbox" value="Религиозные" checked /> Религиозные</label></li>
+          </ul>
         </form>
       </div>
 
@@ -356,8 +378,10 @@
         //удаление кнопок "Открыть в Яндекс картах", "Создать свою карту" и "Доехать на такси", а также удаление плашки с условиями пользования Яндекс сделано через CSS
 
         setMapInstance(myMap);
-
+    
         var points = <?php echo json_encode($points); ?>;
+
+        window.placemarks = [];
 
         points.forEach(function(point) {
           var content = `
@@ -438,7 +462,18 @@
 
             
               });
-              myMap.geoObjects.add(myPlacemark); // Добавление метки на карту
+              const activeCategories = Array.from(document.querySelectorAll('#filter-form input[type="checkbox"]:checked')).map(cb => cb.value);
+              const isInitiallyVisible = activeCategories.includes(point.category);
+
+              if (isInitiallyVisible) {
+                myMap.geoObjects.add(myPlacemark);
+              }
+
+              window.placemarks.push({
+                placemark: myPlacemark,
+                category: point.category,
+                isOnMap: isInitiallyVisible,
+              });
             });
 
         document.getElementById("plus").addEventListener("click", function () {
@@ -474,11 +509,13 @@
     <script src="/js/choices.min.js"></script>
     <script src="/js/favoritePoint.js"></script>
     <script src="/js/openRouteMenu.js"></script>
+    <script src="/js/openFilterMenu.js"></script>
     <script src="/js/openAddMenu.js"></script>
     <script src="/js/openAccountMenu.js"></script>
     <script src="/js/openRegistrationMenu.js"></script>
     <script src="/js/selectValue.js"></script>  
     <script src="/js/loadFavoritesPoints.js"></script>
+    <script src="/js/Filter.js"></script>
     <script>
       const element = document.querySelector("#selectCustom");
       const choises = new Choices(element, {
