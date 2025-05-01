@@ -1,6 +1,13 @@
 document.addEventListener('DOMContentLoaded', setupRouteTypeButtons);
 document.addEventListener('DOMContentLoaded', setupResetButton);
 document.addEventListener('DOMContentLoaded', setupRouteModalHandlers);
+document.addEventListener('DOMContentLoaded', () => {
+  const simulateBtn = document.getElementById('simulate-move-btn');
+  if (simulateBtn) {
+    simulateBtn.addEventListener('click', simulateUserMove);
+  }
+});
+
 
 
 let mapInstance = null;
@@ -113,12 +120,14 @@ function addRoutePoint(coords, balloonTitle) {
   if (routePoints.length === 0) {
     navigator.geolocation.getCurrentPosition(
       pos => {
+        console.log('Geo success:', pos);
         const from = [pos.coords.latitude, pos.coords.longitude];
         routePoints.push({ coords: from, name: 'Стартовая точка', address: '' });
         routePoints.push({ coords, name: balloonTitle, address: '' });
         drawCustomRoute();
       },
-      () => {
+      err => {
+        console.warn('Geo error, fallback used:', err.message);
         const fallback = [51.7347, 36.1907];
         routePoints.push({ coords: fallback, name: 'Стартовая точка', address: '' });
         routePoints.push({ coords, name: balloonTitle, address: '' });
@@ -171,6 +180,7 @@ function drawCustomRoute() {
           <p class="route-info__time">Время в пути: ${formatTime(timeInMinutes)}</p>
         `;
         routeInfoElement.style.display = 'block';
+        setupNavigationButton();
       }
     }
   });
@@ -280,15 +290,23 @@ function resetRoute() {
   if (currentRoute) {
     mapInstance.geoObjects.remove(currentRoute);
     currentRoute = null;
-    
+
     const routeInfoElement = document.getElementById('route-info');
     if (routeInfoElement) {
       routeInfoElement.style.display = 'none';
+    }
+
+    // ⬇ Скрываем и очищаем инструкции
+    const instructionsBlock = document.getElementById('route-instructions');
+    if (instructionsBlock) {
+      instructionsBlock.innerHTML = '';
+      instructionsBlock.style.display = 'none';
     }
   }
   updateRouteListUI();
   
 }
+
 
 function removeRoutePoint(index) {
   routePoints.splice(index, 1);
@@ -375,3 +393,81 @@ function saveFavoriteRouteWithName() {
     alert('Произошла ошибка при сохранении маршрута');
   });
 }
+
+function setupNavigationButton() {
+  const navBtn = document.getElementById('start-navigation-btn');
+  if (navBtn) {
+    navBtn.addEventListener('click', startNavigation);
+  }
+}
+
+function startNavigation() {
+  if (!currentRoute) return;
+
+  const activeRoute = currentRoute.getActiveRoute();
+  if (!activeRoute) {
+    alert('Маршрут ещё не готов');
+    return;
+  }
+
+  showNavigationInstructions(activeRoute);
+
+  // Текущая позиция будет обновляться на карте каждые 5 секунд
+
+  navigator.geolocation.watchPosition(position => {
+    const coords = [position.coords.latitude, position.coords.longitude];
+    navMarker.geometry.setCoordinates(coords);
+    mapInstance.setCenter(coords, 16);
+  }, err => {
+    console.warn('Navigation geolocation error:', err.message);
+  }, {
+    enableHighAccuracy: true,
+    maximumAge: 0,
+    timeout: 10000
+  });
+}
+
+function showNavigationInstructions(route) {
+  const instructionsContainer = document.getElementById('navigation-instructions');
+  if (!instructionsContainer) return;
+
+  const paths = route.getPaths();
+  if (!paths || paths.getLength() === 0) return;
+
+  let html = '<h3>Пошаговая навигация:</h3><ol>';
+
+  for (let i = 0; i < paths.getLength(); i++) {
+    const path = paths.get(i);
+    const segments = path.getSegments();
+
+    for (let j = 0; j < segments.getLength(); j++) {
+      const segment = segments.get(j);
+      const text = segment.properties.get('text');
+      if (text) {
+        html += `<li>${text}</li>`;
+      }
+    }
+  }
+
+  html += '</ol>';
+  instructionsContainer.innerHTML = html;
+  instructionsContainer.style.display = 'block';
+}
+
+function simulateUserMove() {
+  if (routePoints.length < 2 || !routePoints[0].isStartPoint) return;
+
+  const [lat, lon] = routePoints[0].coords;
+
+  // Смещение на север примерно на 100 метров (в градусах)
+  const newLat = lat + 0.0009;
+  const newCoords = [newLat, lon];
+
+  console.log("Симуляция движения, новая позиция:", newCoords);
+
+  routePoints[0].coords = newCoords;
+
+  drawCustomRoute();
+}
+
+

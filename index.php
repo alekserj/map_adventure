@@ -94,7 +94,9 @@
           <p class="route-info__distance">Длина маршрута: 0 км</p>
           <p class="route-info__time">Время в пути: 0 мин</p>
         </div>
-
+        <button type="button" id="start-navigation-btn" class="start-navigation">Начать навигацию</button>
+        <button type="button" id="simulate-move-btn">Сдвинуть позицию</button>
+        <div id="navigation-instructions" class="navigation-instructions" style="display: none;"></div>
         </form>
       </div>
 
