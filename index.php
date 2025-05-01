@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.3</title>
+    <title>Версия 0.3.4</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -42,22 +42,22 @@
         <ul class="view__list">
           <li class="view__item">
             <button class="view__add-object-menu-btn" id="route">
-              <img  src="/img/route2.svg" alt="маршрут" />
+              <img class="view__add-object-menu-pic" src="/img/route2.svg" alt="маршрут" />
             </button>
           </li>
           <li class="view__item">
             <button class="view__add-object-menu-btn" id="filter">
-              <img  src="/img/filter.svg" alt="фильтр" />
+              <img class="view__add-object-menu-pic" src="/img/filter.svg" alt="фильтр" />
             </button>
           </li>
           <li class="view__item">
             <button class="view__add-object-menu-btn" id="plus">
-              <img class="view__add-object-menu-img" src="/img/close.svg" alt="добавить объект" />
+              <img class="view__add-object-menu-img view__add-object-menu-pic" src="/img/close.svg" alt="добавить объект" />
             </button>
           </li>
           <li class="view__item">
             <button class="view__add-object-menu-btn" id="account">
-              <img src="/img/account.svg" alt="аккаунт" style="" />
+              <img class="view__add-object-menu-pic" src="/img/account.svg" alt="аккаунт" style="" />
             </button>
           </li>
         </ul>
@@ -350,7 +350,6 @@
           </div>
         </div>
       </div>
-
       <div class="modal" id="route-name-modal" style="display: none;">
         <div class="modal-content">
           <button class="close-modal-btn" id="close-route-name-modal">&times;</button>
@@ -358,6 +357,36 @@
           <input type="text" id="route-name-input" placeholder="Название маршрута">
           <button id="confirm-route-name">Сохранить</button>
         </div>
+      </div>
+
+      <div class="view__reviews-menu" id="reviews-menu">
+        <button class="view__add-object-menu-btn" id="reviews-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <div class="view__reviews-menu-title">
+          <h2 class="view__title">Отзывы</h2>
+        </div>
+        <div class="customScroll reviews-scroll" data-simplebar>
+          <ul class="view__reviews-menu-list" id="reviews-list">
+
+          </ul>
+        </div>
+        <form
+          class="view__form view__form_reviews"
+          id="reviews-menu-form"
+        >
+          <input type="hidden" id="review-object-id" name="object_id" value="">
+          <textarea
+            class="view__textarea reviews-textarea"
+            type="text"
+            placeholder="Ваш отзыв"
+            name="review"
+            id = "review"
+          ></textarea>
+          <button class="view__add-object-menu-btn" id="send_review">
+              <img class="view__add-object-menu-pic" src="/img/review.svg" alt="оставить отзыв" />
+          </button>
+        </form>
       </div>
 
       <div class="view__map" id="map"></div>
@@ -395,7 +424,10 @@
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
               <p><strong>Описание:</strong> ${point.description || 'Не указано'}</p> 
               <button class="baloon__btn" id ="toRoute">Добавить в маршрут</button>
-              <button class="baloon__information-btn" id="addInformation">Добавить информацию о объекте</button>
+              <div class="baloon__title-menu">
+                <button class="baloon__information-btn" id="addReview">Отзывы</button>
+                <button class="baloon__information-btn" id="addInformation">Добавить информацию о объекте</button>
+              </div>
               <input type="hidden" value=${point.id} id="informationId"></input>
             </div>`
             ;
@@ -448,6 +480,47 @@
                       }
                     };
                   }
+
+                  const addInfoBtn = document.querySelector('#addInformation');
+                  if (addInfoBtn) {
+                    addInfoBtn.onclick = function() {
+                      fetch('/include/auth.php')
+                        .then(response => response.json())
+                        .then(data => {
+                          if (!data.isAuth) {
+                            alert('Для добавления информации необходимо войти в аккаунт');
+                            document.querySelector("#account-menu").classList.add("menu-is-active");
+                            return;
+                          }
+                          
+                          document.querySelector("#add-information-menu").classList.add("menu-is-active");
+                          document.querySelector("#viewTitle")?.remove();
+                          const title = document.createElement("h2")
+                          title.classList.add("view__title")
+                          title.id = "viewTitle"
+                          title.innerHTML = `Добавить информацию о объекте <br> "${document.querySelector(".baloon__title").textContent}"`
+                          const inputId = document.createElement("input")
+                          inputId.type = "hidden"
+                          inputId.name = "objectId"
+                          inputId.value = document.getElementById("informationId").value
+                          document.querySelector("#add-information-menu-form").prepend(title)
+                          document.querySelector("#add-information-menu-form").appendChild(inputId)
+                          document.getElementById('pictureList').innerHTML = ""
+                        });
+                    };
+                  }
+
+                  document.querySelector('#addReview').addEventListener("click", function() {
+                    const objectId = document.getElementById("informationId").value;
+                    document.querySelector("#reviews-menu").classList.add("menu-is-active");
+                    document.querySelector("#review-object-id").value = objectId;
+                    loadReviews(objectId); 
+                  });
+                  
+                  document.getElementById('reviews-menu-close').addEventListener('click', function() {
+                    document.querySelector("#reviews-menu").classList.remove("menu-is-active");
+                    document.getElementById('reviews-list').innerHTML = '';
+                  });
 
                   checkFavoriteStatus(pointId);                  
                   attachRouteButtonHandler(point.coordinates, point.name);
@@ -506,6 +579,8 @@
     <script src="/js/addData.js"></script>
     <script src="/js/addObject.js"></script>
     <script src="/js/addObjectPicture.js"></script>
+    <script src="/js/addObjectInformation.js"></script>
+    <script src="/js/addReview.js"></script>
     <script src="/js/choices.min.js"></script>
     <script src="/js/favoritePoint.js"></script>
     <script src="/js/openRouteMenu.js"></script>
@@ -522,6 +597,6 @@
       const choises = new Choices(element, {
         searchEnabled: false,
       });
-    </script>
+    </script>         
 </html>
 
