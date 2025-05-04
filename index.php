@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.1</title>
+    <title>Версия 0.3.4</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -42,22 +42,22 @@
         <ul class="view__list">
           <li class="view__item">
             <button class="view__add-object-menu-btn" id="route">
-              <img  src="/img/route2.svg" alt="маршрут" />
+              <img class="view__add-object-menu-pic" src="/img/route2.svg" alt="маршрут" />
             </button>
           </li>
           <li class="view__item">
             <button class="view__add-object-menu-btn" id="filter">
-              <img  src="/img/filter.svg" alt="фильтр" />
+              <img class="view__add-object-menu-pic" src="/img/filter.svg" alt="фильтр" />
             </button>
           </li>
           <li class="view__item">
             <button class="view__add-object-menu-btn" id="plus">
-              <img class="view__add-object-menu-img" src="/img/close.svg" alt="добавить объект" />
+              <img class="view__add-object-menu-img view__add-object-menu-pic" src="/img/close.svg" alt="добавить объект" />
             </button>
           </li>
           <li class="view__item">
             <button class="view__add-object-menu-btn" id="account">
-              <img src="/img/account.svg" alt="аккаунт" style="" />
+              <img class="view__add-object-menu-pic" src="/img/account.svg" alt="аккаунт" style="" />
             </button>
           </li>
         </ul>
@@ -94,28 +94,26 @@
           <p class="route-info__distance">Длина маршрута: 0 км</p>
           <p class="route-info__time">Время в пути: 0 мин</p>
         </div>
-        <button type="button" id="start-navigation-btn" class="start-navigation">Начать навигацию</button>
-        <button type="button" id="simulate-move-btn">Сдвинуть позицию</button>
-        <div id="navigation-instructions" class="navigation-instructions" style="display: none;"></div>
+        <button type="button" id="toggle-instructions-btn" style="display: none;">Показать подробности</button>
+        <div id="navigation-instructions" style="display: none;"></div>
         </form>
       </div>
 
       <div class="view__filter-menu" id="filter-menu">
-      <button class="view__add-object-menu-btn" id="filter-menu-close">
-          <img src="/img/close.svg" alt="закрыть меню" />
-        </button>
-        <form class="view__form" id="filter-form">
-          <h2 class="view__title">Фильтр достопримечательностей</h2>
-          <ul class="filter__checkbox-list">
-            <li><label><input type="checkbox" value="Музеи" checked /> Музеи</label></li>
-            <li><label><input type="checkbox" value="Культурные" checked /> Культурные</label></li>
-            <li><label><input type="checkbox" value="Архитектурные" checked /> Архитектурные</label></li>
-            <li><label><input type="checkbox" value="Природные" checked /> Природные</label></li>
-            <li><label><input type="checkbox" value="Религиозные" checked /> Религиозные</label></li>
-          </ul>
-        </form>
+        <button class="view__add-object-menu-btn" id="filter-menu-close">
+            <img src="/img/close.svg" alt="закрыть меню" />
+          </button>
+          <form class="view__form" id="filter-form">
+            <h2 class="view__title">Фильтр достопримечательностей</h2>
+            <ul class="filter__checkbox-list">
+              <li><label><input type="checkbox" value="Музеи" checked /> Музеи</label></li>
+              <li><label><input type="checkbox" value="Культурные" checked /> Культурные</label></li>
+              <li><label><input type="checkbox" value="Архитектурные" checked /> Архитектурные</label></li>
+              <li><label><input type="checkbox" value="Природные" checked /> Природные</label></li>
+              <li><label><input type="checkbox" value="Религиозные" checked /> Религиозные</label></li>
+            </ul>
+          </form>
       </div>
-
 
       <div class="view__add-object-menu" id="add-object-menu">
         <button class="view__add-object-menu-btn" id="plus-close">
@@ -353,7 +351,6 @@
           </div>
         </div>
       </div>
-
       <div class="modal" id="route-name-modal" style="display: none;">
         <div class="modal-content">
           <button class="close-modal-btn" id="close-route-name-modal">&times;</button>
@@ -363,7 +360,45 @@
         </div>
       </div>
 
-      <div class="view__map" id="map"></div>
+      <div class="view__reviews-menu" id="reviews-menu">
+        <button class="view__add-object-menu-btn" id="reviews-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <div class="view__reviews-menu-title">
+          <h2 class="view__title">Отзывы</h2>
+        </div>
+        <div class="customScroll reviews-scroll" data-simplebar>
+          <ul class="view__reviews-menu-list" id="reviews-list">
+
+          </ul>
+        </div>
+        <form
+          class="view__form view__form_reviews"
+          id="reviews-menu-form"
+        >
+          <input type="hidden" id="review-object-id" name="object_id" value="">
+          <textarea
+            class="view__textarea reviews-textarea"
+            type="text"
+            placeholder="Ваш отзыв"
+            name="review"
+            id = "review"
+          ></textarea>
+          <button class="view__add-object-menu-btn" id="send_review">
+              <img class="view__add-object-menu-pic" src="/img/review.svg" alt="оставить отзыв" />
+          </button>
+        </form>
+      </div>
+
+      <div id="map-container" style="position: relative; width: 100%; height: 100%;">
+        <div class="view__map" id="map"></div>
+          <button id="toggle-location-btn">Показать местоположение</button>
+        </div>
+
+     
+
+      
+
     </section>
   </body>
   <script>
@@ -381,6 +416,8 @@
         //удаление кнопок "Открыть в Яндекс картах", "Создать свою карту" и "Доехать на такси", а также удаление плашки с условиями пользования Яндекс сделано через CSS
 
         setMapInstance(myMap);
+
+        initLocationToggle(myMap);
     
         var points = <?php echo json_encode($points); ?>;
 
@@ -398,7 +435,10 @@
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
               <p><strong>Описание:</strong> ${point.description || 'Не указано'}</p> 
               <button class="baloon__btn" id ="toRoute">Добавить в маршрут</button>
-              <button class="baloon__information-btn" id="addInformation">Добавить информацию о объекте</button>
+              <div class="baloon__title-menu">
+                <button class="baloon__information-btn" id="addReview">Отзывы</button>
+                <button class="baloon__information-btn" id="addInformation">Добавить информацию о объекте</button>
+              </div>
               <input type="hidden" value=${point.id} id="informationId"></input>
             </div>`
             ;
@@ -451,6 +491,47 @@
                       }
                     };
                   }
+
+                  const addInfoBtn = document.querySelector('#addInformation');
+                  if (addInfoBtn) {
+                    addInfoBtn.onclick = function() {
+                      fetch('/include/auth.php')
+                        .then(response => response.json())
+                        .then(data => {
+                          if (!data.isAuth) {
+                            alert('Для добавления информации необходимо войти в аккаунт');
+                            document.querySelector("#account-menu").classList.add("menu-is-active");
+                            return;
+                          }
+                          
+                          document.querySelector("#add-information-menu").classList.add("menu-is-active");
+                          document.querySelector("#viewTitle")?.remove();
+                          const title = document.createElement("h2")
+                          title.classList.add("view__title")
+                          title.id = "viewTitle"
+                          title.innerHTML = `Добавить информацию о объекте <br> "${document.querySelector(".baloon__title").textContent}"`
+                          const inputId = document.createElement("input")
+                          inputId.type = "hidden"
+                          inputId.name = "objectId"
+                          inputId.value = document.getElementById("informationId").value
+                          document.querySelector("#add-information-menu-form").prepend(title)
+                          document.querySelector("#add-information-menu-form").appendChild(inputId)
+                          document.getElementById('pictureList').innerHTML = ""
+                        });
+                    };
+                  }
+
+                  document.querySelector('#addReview').addEventListener("click", function() {
+                    const objectId = document.getElementById("informationId").value;
+                    document.querySelector("#reviews-menu").classList.add("menu-is-active");
+                    document.querySelector("#review-object-id").value = objectId;
+                    loadReviews(objectId); 
+                  });
+                  
+                  document.getElementById('reviews-menu-close').addEventListener('click', function() {
+                    document.querySelector("#reviews-menu").classList.remove("menu-is-active");
+                    document.getElementById('reviews-list').innerHTML = '';
+                  });
 
                   checkFavoriteStatus(pointId);                  
                   attachRouteButtonHandler(point.coordinates, point.name);
@@ -509,6 +590,8 @@
     <script src="/js/addData.js"></script>
     <script src="/js/addObject.js"></script>
     <script src="/js/addObjectPicture.js"></script>
+    <script src="/js/addObjectInformation.js"></script>
+    <script src="/js/addReview.js"></script>
     <script src="/js/choices.min.js"></script>
     <script src="/js/favoritePoint.js"></script>
     <script src="/js/openRouteMenu.js"></script>
@@ -518,12 +601,14 @@
     <script src="/js/openRegistrationMenu.js"></script>
     <script src="/js/selectValue.js"></script>  
     <script src="/js/loadFavoritesPoints.js"></script>
+    <script src="/js/loadFavoritesRoutes.js"></script>
     <script src="/js/Filter.js"></script>
+    <script src="/js/Location.js"></script>
     <script>
       const element = document.querySelector("#selectCustom");
       const choises = new Choices(element, {
         searchEnabled: false,
       });
-    </script>
+    </script>         
 </html>
 

@@ -66,11 +66,17 @@ a {
   height: 50px;
   background-color: transparent;
   border: none;
+  border-radius: 50%;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .view__add-object-menu-img {
   transform: rotate(45deg);
+}
+
+.view__add-object-menu-btn:hover{
+  background-color: rgba(128, 128, 128, 0.2);
 }
 
 .view__route-menu,
@@ -79,7 +85,8 @@ a {
 .view__account-menu,
 .view__registration-menu,
 .view__cabinet-menu,
-.view__add-information-menu {
+.view__add-information-menu,
+.view__reviews-menu {
     position: absolute;
     top: 0;
     right: 0;
@@ -136,17 +143,22 @@ a {
 .view__account-btn,
 .baloon__information-btn{
   margin-top: 13px;
-  font-size: 10px;
-  color: blue;
+  font-size: 12px;
+  color: black;
   background-color: transparent;
   border: none;
   text-decoration: underline;
   cursor: pointer;
+  transition: opacity 0.3s;
 }
 
 .view__account-btn{
   margin-top: 8px;
-  font-size: 12px;
+  color: blue;
+}
+
+.baloon__information-btn:hover{
+  opacity: 60%;
 }
 
 .choices {
@@ -204,6 +216,11 @@ a {
 
 .baloon__title{
   line-height: 1;
+}
+
+.baloon__title-menu{
+  display: flex;
+  justify-content: space-between;
 }
 
 .baloon__favorite{
@@ -591,4 +608,106 @@ a {
 
 .route-info p {
   margin: 5px 0;
+}
+
+.view__favorite-element {
+  flex-grow: 1;
+}
+
+.view__favorite-name {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.view__favorite-type {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.view__reviews-menu-title{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+}
+
+.reviews-scroll{
+  margin-top: 24px;
+  border-radius: 10px;
+  outline: 1px solid black;
+}
+
+.view__form_reviews{
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  border-bottom: 1px solid black;
+}
+
+.view__reviews-menu-list{
+  padding-left: 5px;
+  padding-right: 5px;
+  list-style: none;
+}
+
+.reviews-textarea{
+  height: 40px;
+  border: none;
+  outline: none;
+}
+
+.view__reviews-menu-item {
+  margin: 0;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 10px;
+}
+
+.view__reviews-menu-user {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.view__reviews-menu-name {
+  margin: 0;
+  font-weight: bold;
+  color: #333;
+}
+
+.view__reviews-menu-date {
+  margin: 0;
+  color: #999;
+  font-size: 0.9em;
+}
+
+.view__reviews-menu-text {
+  margin-bottom: 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+.view__reviews-menu-empty{
+  text-align: center;
+  opacity: 50%;
+}
+
+#toggle-location-btn {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  padding: 8px 12px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+#toggle-location-btn:hover {
+  background-color: #f0f0f0;
 }

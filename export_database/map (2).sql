@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Апр 24 2025 г., 18:47
+-- Время создания: Май 01 2025 г., 15:30
 -- Версия сервера: 8.0.30
 -- Версия PHP: 7.2.34
 
@@ -33,6 +33,14 @@ CREATE TABLE `favorite_points` (
   `user_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `favorite_points`
+--
+
+INSERT INTO `favorite_points` (`id`, `point_id`, `user_id`) VALUES
+(198, 32, 1),
+(201, 34, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -46,6 +54,13 @@ CREATE TABLE `favorite_routes` (
   `route_type` text NOT NULL,
   `user_id` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `favorite_routes`
+--
+
+INSERT INTO `favorite_routes` (`id`, `name`, `route`, `route_type`, `user_id`) VALUES
+(12, 'маршрут', 0xe6100000010200000004000000832f4ca60ade494071ac8bdb681842400de36e10addd494014048f6fef1642408cbe823463df49404012f6ed2418424020d5b0df13e549400c3b8c497f154240, 'auto', 1);
 
 -- --------------------------------------------------------
 
@@ -94,7 +109,10 @@ INSERT INTO `pictures` (`id`, `object_id`, `link`) VALUES
 (45, 39, '/object_pictures/obj_39_67fe7de72058c.webp'),
 (46, 39, '/object_pictures/obj_39_67fe7de7207f7.webp'),
 (47, 29, '/object_pictures/obj_29_67fe81a2ea651.jpg'),
-(48, 29, '/object_pictures/obj_29_67fe81a2ea97e.jpg');
+(48, 29, '/object_pictures/obj_29_67fe81a2ea97e.jpg'),
+(49, 50, '/object_pictures/obj_50_681248db78cfe.jpg'),
+(50, 63, '/object_pictures/obj_63_6812490698465.jpg'),
+(51, 63, '/object_pictures/obj_63_6812490698c1f.png');
 
 -- --------------------------------------------------------
 
@@ -128,8 +146,29 @@ INSERT INTO `points` (`id`, `name`, `geo`, `street`, `category`, `description`) 
 (37, 'Парк Боева дача', 0x000000000101000000b98ac56f0a1b42400c94145800df4940, 'городской округ Курск, Центральный округ, парк Боева дача', 'Природные', '«Боева дача», или просто «Боевка», – одно из любимых мест отдыха у жителей и гостей Курска. Парковую зону называют «зеленые легкие Курска», «уголок дикой природы посреди города», «зеленое кольцо».'),
 (38, 'Новая Боевка', 0x000000000101000000b727486c771b4240191efb592cdf4940, 'городской округ Курск, Железнодорожный округ, пикник-парк Новая Боевка', 'Природные', 'Парк культуры и отдыха «Новая Боевка» — это идеальное место для семейного отдыха и прогулок на свежем воздухе. Он расположен на берегу реки Тускарь, что добавляет особую атмосферу спокойствия и умиротворения. Территория парка ухожена, здесь много зелени и цветущих растений.'),
 (39, 'Курская антоновка', 0x0000000001010000000c3b8c497f15424020d5b0df13e54940, 'Курск, Северный жилой район', 'Архитектурные', 'Опора ЛЭП «Курская антоновка» — это арт-объект, который выглядит как гигантское дерево и имеет ночную подсветку.'),
-(46, 'Драматический театр им. Пушкина', 0x000000000101000000f3ad0feb8d18424024b726dd96de4940, 'Курск, улица Ленина, 26', 'Культурные', 'Курский государственный драматический театр имени А. С. Пушкина — театр в Курске, один из старейших театров России, основан в 1792 году.'),
-(50, 'ваяпва', 0x0000000001010000000a2e56d460184240705d3123bcdd4940, 'Курск, улица Радищева, 17', 'Архитектурные', '[]eoprthg0-9rijkiohbdfghdfg');
+(46, 'Драматический театр им. Пушкина', 0x000000000101000000f3ad0feb8d18424024b726dd96de4940, 'Курск, улица Ленина, 26', 'Культурные', 'Курский государственный драматический театр имени А. С. Пушкина — театр в Курске, один из старейших театров России, основан в 1792 году.');
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `reviews`
+--
+
+CREATE TABLE `reviews` (
+  `id` int NOT NULL,
+  `object_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `review` varchar(512) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `reviews`
+--
+
+INSERT INTO `reviews` (`id`, `object_id`, `user_id`, `review`, `created_at`) VALUES
+(8, 34, 1, 'Супер музей!', '2025-05-01 12:26:31'),
+(9, 34, 10, 'Мне тоже очень понравилось', '2025-05-01 12:30:08');
 
 -- --------------------------------------------------------
 
@@ -149,7 +188,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `nickname`, `email`, `password`) VALUES
-(1, 'qw', 'er@ty.com', '$2y$10$6lvBbyX5AwNRuYjJQ19h1eRs98k8KxU6YbaEWlA.ROlgxtbf24yvC');
+(1, 'qw', 'er@ty.com', '$2y$10$6lvBbyX5AwNRuYjJQ19h1eRs98k8KxU6YbaEWlA.ROlgxtbf24yvC'),
+(10, 'aleksey', 'sergeev_122001@mail.ru', '$2y$10$Cg76hUeq6h3T2eGXrLgU..8fJNu5qqNhltnWuoX4Qvat/cTgxD6dW');
 
 --
 -- Индексы сохранённых таблиц
@@ -180,6 +220,12 @@ ALTER TABLE `points`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Индексы таблицы `reviews`
+--
+ALTER TABLE `reviews`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Индексы таблицы `users`
 --
 ALTER TABLE `users`
@@ -195,31 +241,37 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `favorite_points`
 --
 ALTER TABLE `favorite_points`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=197;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=203;
 
 --
 -- AUTO_INCREMENT для таблицы `favorite_routes`
 --
 ALTER TABLE `favorite_routes`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT для таблицы `pictures`
 --
 ALTER TABLE `pictures`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT для таблицы `points`
 --
 ALTER TABLE `points`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+
+--
+-- AUTO_INCREMENT для таблицы `reviews`
+--
+ALTER TABLE `reviews`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
