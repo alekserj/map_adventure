@@ -693,3 +693,21 @@ a {
   text-align: center;
   opacity: 50%;
 }
+
+#toggle-location-btn {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1000;
+  padding: 8px 12px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+#toggle-location-btn:hover {
+  background-color: #f0f0f0;
+}

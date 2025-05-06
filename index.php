@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.4</title>
+    <title>Версия 0.3.5</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -94,24 +94,25 @@
           <p class="route-info__distance">Длина маршрута: 0 км</p>
           <p class="route-info__time">Время в пути: 0 мин</p>
         </div>
-
+        <button type="button" id="toggle-instructions-btn" style="display: none;">Показать подробности</button>
+        <div id="navigation-instructions" style="display: none;"></div>
         </form>
       </div>
 
       <div class="view__filter-menu" id="filter-menu">
-      <button class="view__add-object-menu-btn" id="filter-menu-close">
-          <img src="/img/close.svg" alt="закрыть меню" />
-        </button>
-        <form class="view__form" id="filter-form">
-          <h2 class="view__title">Фильтр достопримечательностей</h2>
-          <ul class="filter__checkbox-list">
-            <li><label><input type="checkbox" value="Музеи" checked /> Музеи</label></li>
-            <li><label><input type="checkbox" value="Культурные" checked /> Культурные</label></li>
-            <li><label><input type="checkbox" value="Архитектурные" checked /> Архитектурные</label></li>
-            <li><label><input type="checkbox" value="Природные" checked /> Природные</label></li>
-            <li><label><input type="checkbox" value="Религиозные" checked /> Религиозные</label></li>
-          </ul>
-        </form>
+        <button class="view__add-object-menu-btn" id="filter-menu-close">
+            <img src="/img/close.svg" alt="закрыть меню" />
+          </button>
+          <form class="view__form" id="filter-form">
+            <h2 class="view__title">Фильтр достопримечательностей</h2>
+            <ul class="filter__checkbox-list">
+              <li><label><input type="checkbox" value="Музеи" checked /> Музеи</label></li>
+              <li><label><input type="checkbox" value="Культурные" checked /> Культурные</label></li>
+              <li><label><input type="checkbox" value="Архитектурные" checked /> Архитектурные</label></li>
+              <li><label><input type="checkbox" value="Природные" checked /> Природные</label></li>
+              <li><label><input type="checkbox" value="Религиозные" checked /> Религиозные</label></li>
+            </ul>
+          </form>
       </div>
 
       <div class="view__add-object-menu" id="add-object-menu">
@@ -389,7 +390,15 @@
         </form>
       </div>
 
-      <div class="view__map" id="map"></div>
+      <div id="map-container" style="position: relative; width: 100%; height: 100%;">
+        <div class="view__map" id="map"></div>
+          <button id="toggle-location-btn">Показать местоположение</button>
+        </div>
+
+     
+
+      
+
     </section>
   </body>
   <script>
@@ -407,6 +416,8 @@
         //удаление кнопок "Открыть в Яндекс картах", "Создать свою карту" и "Доехать на такси", а также удаление плашки с условиями пользования Яндекс сделано через CSS
 
         setMapInstance(myMap);
+
+        initLocationToggle(myMap);
     
         var points = <?php echo json_encode($points); ?>;
 
@@ -592,6 +603,7 @@
     <script src="/js/loadFavoritesPoints.js"></script>
     <script src="/js/loadFavoritesRoutes.js"></script>
     <script src="/js/Filter.js"></script>
+    <script src="/js/Location.js"></script>
     <script>
       const element = document.querySelector("#selectCustom");
       const choises = new Choices(element, {
