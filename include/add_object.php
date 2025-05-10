@@ -28,9 +28,18 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("sssss", $object_name, $longitude, $latitude, $address, $category);
 
 if ($stmt->execute()) {
-    echo "Новый объект успешно добавлен!";
+    $point_id = $stmt->insert_id;
+
+    $statusSql = "INSERT INTO point_status (point_id, is_approved) VALUES (?, ?)";
+    $isApproved = ($_SESSION['user']['email'] === 'admin@admin.adm') ? 1 : 0;
+    $statusStmt = $conn->prepare($statusSql);
+    $statusStmt->bind_param("ii", $point_id, $isApproved);
+    $statusStmt->execute();
+    $statusStmt->close();
+    
+    echo json_encode(['success' => true, 'message' => 'Объект добавлен и ожидает модерации']);
 } else {
-    echo "Ошибка: " . $stmt->error;
+    echo json_encode(['success' => false, 'message' => 'Ошибка: ' . $stmt->error]);
 }
 
 $stmt->close();

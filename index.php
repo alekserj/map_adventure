@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.5</title>
+    <title>Версия 0.3.6</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -322,7 +322,7 @@
         </form>
       </div>
 
-      <div class="view__cabinet-menu" id="cabinet-menu" style="<?php echo $isAuth ? '' : 'display: none;'; ?>">
+      <div class="view__cabinet-menu" id="cabinet-menu" style="<?php echo ($isAuth && $user['email'] !== 'admin@admin.adm') ? '' : 'display: none;'; ?>">
         <ul class="view__route-btn-list">
           <li>
             <a class="view__add-object-menu-btn" href="/include/logout.php">
@@ -394,11 +394,116 @@
         <div class="view__map" id="map"></div>
           <button id="toggle-location-btn">Показать местоположение</button>
         </div>
-
      
-
-      
-
+        <div class="view__admin-menu" id="admin-menu" style="<?php echo ($isAuth && $user['email'] === 'admin@admin.adm') ? '' : 'display: none;'; ?>">
+          <ul class="view__route-btn-list">
+              <li>
+                  <a class="view__add-object-menu-btn" href="/include/logout.php">
+                      <img src="/img/logout.svg" alt="выйти из аккаунта">
+                  </a>
+              </li>
+              <li>
+                  <button class="view__add-object-menu-btn" id="admin-menu-close">
+                      <img src="/img/close.svg" alt="закрыть меню" />
+                  </button>
+              </li>
+          </ul>
+          <div class="view__form">
+              <h2 class="view__title">Панель администратора</h2>
+              <div class="view__admin-sections">
+                  <div class="admin-section">
+                      <h3 class="view__admin-title">Ожидающие одобрения объекты</h3>
+                      <div class="customScroll reviews-scroll admin-applications" data-simplebar>
+                          <ul class="view__admin-list" id="pending-objects">
+                              <?php
+                              $mysqli = new mysqli("localhost", "root", "", "map");
+                              $sql = "SELECT p.id, p.name, p.street, p.category 
+                                      FROM points p
+                                      JOIN point_status ps ON p.id = ps.point_id
+                                      WHERE ps.is_approved = 0";
+                              $result = $mysqli->query($sql);
+                              
+                              if ($result && $result->num_rows > 0) {
+                                  while ($row = $result->fetch_assoc()) {
+                                      echo '<li class="view__admin-item">
+                                              <h4 class="view__admin-item-title">'.$row['name'].'</h4>
+                                              <p>Категория: '.$row['category'].'</p>
+                                              <p>Адрес: '.$row['street'].'</p>
+                                              <div class="view__admin-buttons">
+                                                <button class="admin-btn admin-btn-approve approve-btn" data-id="'.$row['id'].'" data-type="point">Одобрить</button>
+                                                <button class="admin-btn admin-btn-reject  reject-btn" data-id="'.$row['id'].'" data-type="point">Отклонить</button>
+                                              </div>
+                                            </li>';
+                                  }
+                              } else {
+                                  echo '<li class="no-points">Нет объектов на модерации</li>';
+                              }
+                              ?>
+                          </ul>
+                      </div>
+                  </div>
+                  <div class="admin-section">
+                      <h3 class="view__admin-title">Ожидающие одобрения описания</h3>
+                      <div class="customScroll reviews-scroll admin-applications" data-simplebar>
+                          <ul class="view__admin-list" id="pending-descriptions">
+                              <?php
+                              $sql = "SELECT p.id, p.name, ps.pending_description 
+                                      FROM points p
+                                      JOIN point_status ps ON p.id = ps.point_id
+                                      WHERE ps.pending_description IS NOT NULL AND ps.is_info_approved = 0";
+                              $result = $mysqli->query($sql);
+                              
+                              if ($result && $result->num_rows > 0) {
+                                  while ($row = $result->fetch_assoc()) {
+                                      echo '<li class="view__admin-item">
+                                              <h4 class="view__admin-item-title">'.$row['name'].'</h4>
+                                              <p>Новое описание: '.substr($row['pending_description'], 0, 100).'...</p>
+                                              <div class="view__admin-buttons">
+                                                <button class="admin-btn admin-btn-approve approve-btn" data-id="'.$row['id'].'" data-type="description">Одобрить</button>
+                                                <button class="admin-btn admin-btn-reject reject-btn" data-id="'.$row['id'].'" data-type="description">Отклонить</button>
+                                              </div>
+                                            </li>';
+                                  }
+                              } else {
+                                  echo '<li class="no-points">Нет описаний на модерации</li>';
+                              }
+                              ?>
+                          </ul>
+                      </div>
+                  </div>
+                  <div class="admin-section">
+                      <h3 class="view__admin-title">Ожидающие одобрения изображения</h3>
+                      <div class="customScroll reviews-scroll admin-applications" data-simplebar>
+                          <ul class="view__admin-list" id="pending-images">
+                              <?php
+                              $sql = "SELECT p.id as point_id, p.name, pic.id as pic_id, pic.link 
+                                      FROM pictures pic
+                                      JOIN points p ON pic.object_id = p.id
+                                      WHERE pic.is_pending = 1";
+                              $result = $mysqli->query($sql);
+                              
+                              if ($result && $result->num_rows > 0) {
+                                  while ($row = $result->fetch_assoc()) {
+                                      echo '<li class="view__admin-item">
+                                              <h4 class="view__admin-item-title">'.$row['name'].'</h4>
+                                              <img class="view__admin-item-img" src="/include'.$row['link'].'" style="max-width: 100px; max-height: 100px;">
+                                              <div class="view__admin-buttons">
+                                                <button class="admin-btn admin-btn-approve approve-btn" data-id="'.$row['pic_id'].'" data-type="image">Одобрить</button>
+                                                <button class="admin-btn admin-btn-reject reject-btn" data-id="'.$row['pic_id'].'" data-type="image">Отклонить</button>
+                                              </div>
+                                            </li>';
+                                  }
+                              } else {
+                                  echo '<li class="no-points">Нет изображений на модерации</li>';
+                              }
+                              $mysqli->close();
+                              ?>
+                          </ul>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>    
     </section>
   </body>
   <script>
@@ -585,6 +690,44 @@
           });
       }
     </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
+              btn.addEventListener('click', function() {
+                  const id = this.getAttribute('data-id');
+                  const type = this.getAttribute('data-type');
+                  const isApprove = this.classList.contains('approve-btn');
+                  const item = this.closest('.view__admin-item');
+                  const containerId = type === 'image' ? 'pending-images' : 
+                                    type === 'description' ? 'pending-info' : 'pending-objects';
+                  
+                  fetch('/include/moderate.php', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                          id: id,
+                          type: type,
+                          action: isApprove ? 'approve' : 'reject'
+                      })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          item.remove();
+                          const container = document.getElementById(containerId);
+                          if (container.querySelectorAll('.view__admin-item').length === 0) {
+                              container.innerHTML = '<li class="no-points">Нет элементов на модерации</li>';
+                          }
+                      } else {
+                          alert('Ошибка: ' + data.message);
+                      }
+                  });
+              });
+          });
+      });
+    </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/routeHandler.js"></script>
     <script src="/js/addData.js"></script>
@@ -611,4 +754,3 @@
       });
     </script>         
 </html>
-

@@ -1,12 +1,23 @@
 <?php
+session_start();
 $mysqli = new mysqli("localhost", "root", "", "map");
 
 if ($mysqli->connect_error) {
     die("Ошибка подключения: " . $mysqli->connect_error);
 }
 
-$sql = "SELECT id, name, street, category, description, ST_AsText(geo) AS geo_text FROM points";
-$result = $mysqli->query($sql);
+$isAdmin = isset($_SESSION['user']) && $_SESSION['user']['email'] === 'admin@admin.adm';
+
+$sql = "SELECT p.id, p.name, p.street, p.category, 
+               IF(ps.is_info_approved = 1 OR ? = 1, p.description, NULL) as description, 
+               ST_AsText(p.geo) AS geo_text 
+        FROM points p
+        LEFT JOIN point_status ps ON p.id = ps.point_id
+        WHERE ps.is_approved = 1 OR ? = 1";
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("ii", $isAdmin, $isAdmin);
+$stmt->execute();
+$result = $stmt->get_result();
 
 $points = [];
 
@@ -18,7 +29,7 @@ if ($result->num_rows > 0) {
             $latitude = (float)$matches[2];
 
             $images = [];
-            $imageQuery = $mysqli->prepare("SELECT link FROM pictures WHERE object_id = ?");
+            $imageQuery = $mysqli->prepare("SELECT link FROM pictures WHERE object_id = ? AND is_pending = 0");
             $imageQuery->bind_param("i", $row['id']);
             $imageQuery->execute();
             $imageResult = $imageQuery->get_result();
@@ -32,7 +43,7 @@ if ($result->num_rows > 0) {
             
             if (!empty($images)) {
                 foreach ($images as $image) {
-                    $swiperHtml .= '<div class="swiper-slide" style="background-image: url(/include/'.$image.')"></div>';
+                    $swiperHtml .= '<div class="swiper-slide" style="background-image: url(/include'.$image.')"></div>';
                 }
             } else {
                 $swiperHtml .= '<div class="swiper-slide" style="background-image: url(../img/hero_img.jpg)"></div>';
@@ -54,4 +65,5 @@ if ($result->num_rows > 0) {
 }
 
 $mysqli->close();
+return $points;
 ?>
