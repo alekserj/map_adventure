@@ -87,7 +87,9 @@ a {
 .view__cabinet-menu,
 .view__add-information-menu,
 .view__reviews-menu,
-.view__admin-menu {
+.view__admin-menu,
+.view__search-menu,
+.view__obj-info-menu {
     position: absolute;
     top: 0;
     right: 0;
@@ -571,9 +573,14 @@ a {
 }
 
 .filter__checkbox-list {
-  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
   margin: 0;
   padding: 0;
+  padding-bottom: 12px;
+  list-style: none;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.5);
 }
 
 .filter__checkbox-list li {
@@ -584,7 +591,6 @@ a {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
   color: #222;
   cursor: pointer;
 }
@@ -799,4 +805,48 @@ a {
 
 .admin-btn:hover {
   transform: scale(1.01);
+}
+
+.view__reviews-menu-item {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+}
+
+.view__reviews-menu-item-title {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.view__reviews-menu-item-text {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.filter-btn-list{
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  list-style: none;
+}
+
+.view__obj-list-btn{
+  width: auto;
+  padding: 7px 15px;
+}
+
+.no-objects {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+}
+
+.view__search-menu{
+  flex-direction: row;
+  padding: 10px 20px 10px 40px;
+}
+
+.view__form_reviews_search{
+  padding-top: 0;
 }

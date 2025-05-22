@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.6</title>
+    <title>Версия 0.3.7</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -40,6 +40,11 @@
     <section class="view">
       <nav class="view__nav">
         <ul class="view__list">
+          <li class="view__item">
+            <button class="view__add-object-menu-btn" id="search">
+              <img class="view__add-object-menu-pic" src="/img/search.svg" alt="поиск" />
+            </button>
+          </li>
           <li class="view__item">
             <button class="view__add-object-menu-btn" id="route">
               <img class="view__add-object-menu-pic" src="/img/route2.svg" alt="маршрут" />
@@ -94,7 +99,7 @@
           <p class="route-info__distance">Длина маршрута: 0 км</p>
           <p class="route-info__time">Время в пути: 0 мин</p>
         </div>
-        <button type="button" id="toggle-instructions-btn" style="display: none;">Показать подробности</button>
+        <button class="view__form-btn" type="button" id="toggle-instructions-btn" style="display: none;">Показать подробности</button>
         <div id="navigation-instructions" style="display: none;"></div>
         </form>
       </div>
@@ -112,7 +117,51 @@
               <li><label><input type="checkbox" value="Природные" checked /> Природные</label></li>
               <li><label><input type="checkbox" value="Религиозные" checked /> Религиозные</label></li>
             </ul>
+            <h2 class="view__title">Список достопримечательностей</h2>
           </form>
+          <div class="customScroll reviews-scroll" data-simplebar>
+            <ul class="view__reviews-menu-list" id="objects-list">
+
+            </ul>
+          </div>
+      </div>
+
+      <div class="view__search-menu" id="search-menu">
+        <form class="view__form view__form_reviews view__form_reviews_search" id="search-form">
+          <input type="hidden" id="review-object-id" name="object_id" value="">
+          <textarea
+            class="view__textarea reviews-textarea"
+            type="text"
+            placeholder="Введите название или адрес объекта"
+            name="search-object"
+            id = "search-object"
+          ></textarea>
+          <button class="view__add-object-menu-btn" id="search_object">
+              <img class="view__add-object-menu-pic" src="/img/search.svg" alt="оставить отзыв" />
+          </button>
+        </form>
+        <button class="view__add-object-menu-btn" id="search-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+      </div>
+
+      <div class="view__obj-info-menu" id="obj-info-menu">
+        <button class="view__add-object-menu-btn" id="obj-info-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <div class="view__form">
+          <h2 class="view__title">@Название достопримечательности</h2>
+          <div class="swiper">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide swiper-slide1"></div>
+
+            </div>
+            <div class="swiper-scrollbar"></div>
+          </div>
+          <div class="customScroll reviews-scroll" data-simplebar>
+            <p>@описание</p>
+          </div>
+        </div>
       </div>
 
       <div class="view__add-object-menu" id="add-object-menu">
@@ -538,7 +587,7 @@
               </h1>
               <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
-              <p><strong>Описание:</strong> ${point.description || 'Не указано'}</p> 
+              <p><strong>Описание:</strong> ${point.description || 'Не указано'} <button class="baloon__information-btn" id="full-obj-information">Подробнее</button></p> 
               <button class="baloon__btn" id ="toRoute">Добавить в маршрут</button>
               <div class="baloon__title-menu">
                 <button class="baloon__information-btn" id="addReview">Отзывы</button>
@@ -584,7 +633,6 @@
 
                   const pointId = document.getElementById('informationId').value;
                   
-                  // Привязываем обработчик с обновлением всех балунов
                   const favoriteBtn = document.querySelector('#addFavoritePoint');
                   if (favoriteBtn) {
                     favoriteBtn.onclick = async () => {
@@ -638,6 +686,15 @@
                     document.getElementById('reviews-list').innerHTML = '';
                   });
 
+                  document.querySelector("#full-obj-information").addEventListener("click", function () {
+                    document.querySelector("#obj-info-menu").classList.toggle("menu-is-active");
+                  });
+
+                  document.querySelector("#full-information").addEventListener("click", function () {
+                    document.querySelector("#obj-info-menu").classList.toggle("menu-is-active");
+                    document.querySelector("#filter-menu").classList.toggle("menu-is-active");
+                  });
+
                   checkFavoriteStatus(pointId);                  
                   attachRouteButtonHandler(point.coordinates, point.name);
                 });
@@ -662,9 +719,10 @@
                 placemark: myPlacemark,
                 category: point.category,
                 isOnMap: isInitiallyVisible,
+                pointData: point
               });
             });
-
+            
         document.getElementById("plus").addEventListener("click", function () {
           addPlacemark(myMap);
         });
@@ -739,6 +797,8 @@
     <script src="/js/favoritePoint.js"></script>
     <script src="/js/openRouteMenu.js"></script>
     <script src="/js/openFilterMenu.js"></script>
+    <script src="/js/openSearchMenu.js"></script>
+    <script src="/js/openObjectInformationMenu.js"></script>
     <script src="/js/openAddMenu.js"></script>
     <script src="/js/openAccountMenu.js"></script>
     <script src="/js/openRegistrationMenu.js"></script>

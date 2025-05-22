@@ -1,34 +1,96 @@
 document.addEventListener("DOMContentLoaded", function () {
   const checkboxes = document.querySelectorAll('#filter-form input[type="checkbox"]');
+  const objectsList = document.getElementById('objects-list');
 
-  checkboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', updateFilters);
-  });
+  function addObjectToList(point) {
+    const li = document.createElement('li');
+    li.className = 'view__reviews-menu-item';
+    li.innerHTML = `
+      <div class="view__reviews-menu-item-content">
+        <h3 class="view__reviews-menu-item-title">${point.name}</h3>
+        <p class="view__reviews-menu-item-text"><strong>Категория:</strong> ${point.category}</p>
+        <p class="view__reviews-menu-item-text"><strong>Адрес:</strong> ${point.street || 'Не указан'}</p>
+        <ul class="filter-btn-list">
+          <li><button class="view__form-btn view__obj-list-btn" data-coords="${point.coordinates.join(',')}">Показать на карте</button></li>
+          <li><button class="view__form-btn view__obj-list-btn" id="full-information">О объекте</button></li>
+        </ul>
+      </div>
+    `;
+    objectsList.appendChild(li);
+
+    li.querySelector('button').addEventListener('click', function() {
+      const coords = this.getAttribute('data-coords').split(',').map(Number);
+      window.myMap.setCenter(coords, 17, {
+        checkZoomRange: true
+      });
+      
+      const placemark = window.placemarks.find(p => 
+        p.placemark.geometry.getCoordinates()[0] === coords[0] && 
+        p.placemark.geometry.getCoordinates()[1] === coords[1]
+      );
+      
+      if (placemark) {
+        placemark.placemark.balloon.open();
+      }
+    });
+
+    document.querySelectorAll("#full-information").addEventListener("click", function () {
+      document.querySelector("#obj-info-menu").classList.toggle("menu-is-active");
+      document.querySelector("#filter-menu").classList.toggle("menu-is-active");
+    });
+  }
 
   function updateFilters() {
     const selectedCategories = Array.from(checkboxes)
       .filter(cb => cb.checked)
       .map(cb => cb.value);
 
-    if (!window.placemarks || !window.myMap) {
-      console.warn("Метки или карта ещё не загружены");
+    objectsList.innerHTML = '';
+
+    if (!window.placemarks) {
+      console.warn("Метки ещё не загружены");
       return;
     }
 
     window.placemarks.forEach(marker => {
-      const { placemark, category, isOnMap } = marker;
+      const { placemark, category, isOnMap, pointData } = marker;
 
-      if (selectedCategories.includes(category)) {
-        if (!marker.isOnMap) {
-          window.myMap.geoObjects.add(placemark);
-          marker.isOnMap = true;
-        }
-      } else {
-        if (marker.isOnMap) {
-          window.myMap.geoObjects.remove(placemark);
-          marker.isOnMap = false;
+      if (window.myMap) {
+        if (selectedCategories.includes(category)) {
+          if (!isOnMap) {
+            window.myMap.geoObjects.add(placemark);
+            marker.isOnMap = true;
+          }
+        } else {
+          if (isOnMap) {
+            window.myMap.geoObjects.remove(placemark);
+            marker.isOnMap = false;
+          }
         }
       }
+
+      if (selectedCategories.includes(category)) {
+        addObjectToList(pointData);
+      }
     });
+
+    if (objectsList.children.length === 0) {
+      objectsList.innerHTML = '<li class="no-objects">Выберите категории для отображения объектов</li>';
+    }
   }
+
+  function initialize() {
+    const checkPlacemarks = setInterval(() => {
+      if (window.placemarks) {
+        clearInterval(checkPlacemarks);
+        updateFilters();
+      }
+    }, 100);
+  }
+
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', updateFilters);
+  });
+
+  initialize();
 });
