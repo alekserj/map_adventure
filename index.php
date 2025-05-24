@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.8</title>
+    <title>Версия 0.3.9</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -151,6 +151,17 @@
         </button>
         <div class="view__form">
           <h2 class="view__title">@Название достопримечательности</h2>
+          <div class="swiper">
+            <div class="swiper-wrapper" id="obj-info-swiper-wrapper">
+
+            </div>
+            <div class="swiper-pagination"></div>
+
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+
+            <div class="swiper-scrollbar"></div>
+          </div>
           <div class="customScroll reviews-scroll inf-scroll" data-simplebar>
             <p style="margin: 0; padding-left: 5px; padding-right: 5px; text-align: justify;">@описание</p>
           </div>
@@ -690,9 +701,46 @@
                     
                     const titleElement = document.querySelector("#obj-info-menu .view__title");
                     const descriptionElement = document.querySelector("#obj-info-menu .customScroll p");
+                    const swiperWrapper = document.querySelector("#obj-info-swiper-wrapper");
                     
                     titleElement.textContent = point.name;
                     descriptionElement.textContent = point.description || 'Описание отсутствует';
+                    
+                    // Очищаем слайдер
+                    swiperWrapper.innerHTML = '';
+                    
+                    // Используем уже загруженные изображения из point.images
+                    if (point.images && point.images.length > 0) {
+                      point.images.forEach(image => {
+                        const slide = document.createElement('div');
+                        slide.className = 'swiper-slide';
+                        slide.style.backgroundImage = `url(/include${image})`;
+                        swiperWrapper.appendChild(slide);
+                      });
+                    } else {
+                      // Если изображений нет, добавляем заглушку
+                      const slide = document.createElement('div');
+                      slide.className = 'swiper-slide';
+                      slide.style.backgroundImage = 'url(/img/hero_img.jpg)';
+                      swiperWrapper.appendChild(slide);
+                    }
+                    
+                    // Инициализируем Swiper
+                    if (window.objInfoSwiper) {
+                      window.objInfoSwiper.destroy();
+                    }
+                    
+                    window.objInfoSwiper = new Swiper('#obj-info-menu .swiper', {
+                      loop: true,
+                      pagination: {
+                        el: '#obj-info-menu .swiper-pagination',
+                        clickable: true,
+                      },
+                      navigation: {
+                        nextEl: '#obj-info-menu .swiper-button-next',
+                        prevEl: '#obj-info-menu .swiper-button-prev',
+                      },
+                    });
                   });
 
                   checkFavoriteStatus(pointId);                  

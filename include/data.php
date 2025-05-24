@@ -58,6 +58,7 @@ if ($result->num_rows > 0) {
                 'category' => $row['category'],
                 'description' => $row['description'],
                 'coordinates' => [$latitude, $longitude],
+                'images' => $images,
                 'swiperHtml' => $swiperHtml
             ];
         }

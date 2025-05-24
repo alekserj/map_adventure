@@ -37,13 +37,52 @@ document.addEventListener("DOMContentLoaded", function () {
     li.querySelector('#full-information').addEventListener('click', function() {
       document.querySelector("#obj-info-menu").classList.add("menu-is-active");
       
-      // Находим элемент с заголовком и описанием
       const titleElement = document.querySelector("#obj-info-menu .view__title");
       const descriptionElement = document.querySelector("#obj-info-menu .customScroll p");
+      const swiperWrapper = document.querySelector("#obj-info-swiper-wrapper");
       
-      // Устанавливаем данные
       titleElement.textContent = point.name;
       descriptionElement.textContent = point.description || 'Описание отсутствует';
+      
+      // Очищаем слайдер
+      swiperWrapper.innerHTML = '';
+      
+      // Загружаем изображения для этого объекта
+      fetch(`/include/get_images.php?object_id=${point.id}`)
+        .then(response => response.json())
+        .then(images => {
+          if (images && images.length > 0) {
+            images.forEach(image => {
+              const slide = document.createElement('div');
+              slide.className = 'swiper-slide';
+              slide.style.backgroundImage = `url(/include${image})`;
+              swiperWrapper.appendChild(slide);
+            });
+          } else {
+            // Если изображений нет, добавляем заглушку
+            const slide = document.createElement('div');
+            slide.className = 'swiper-slide';
+            slide.style.backgroundImage = 'url(/img/hero_img.jpg)';
+            swiperWrapper.appendChild(slide);
+          }
+          
+          // Инициализируем Swiper
+          if (window.objInfoSwiper) {
+            window.objInfoSwiper.destroy();
+          }
+          
+          window.objInfoSwiper = new Swiper('#obj-info-menu .swiper', {
+            loop: true,
+            pagination: {
+              el: '#obj-info-menu .swiper-pagination',
+              clickable: true,
+            },
+            navigation: {
+              nextEl: '#obj-info-menu .swiper-button-next',
+              prevEl: '#obj-info-menu .swiper-button-prev',
+            },
+          });
+        });
     });
   }
 
