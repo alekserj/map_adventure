@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.7</title>
+    <title>Версия 0.3.8</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -151,15 +151,8 @@
         </button>
         <div class="view__form">
           <h2 class="view__title">@Название достопримечательности</h2>
-          <div class="swiper">
-            <div class="swiper-wrapper">
-              <div class="swiper-slide swiper-slide1"></div>
-
-            </div>
-            <div class="swiper-scrollbar"></div>
-          </div>
-          <div class="customScroll reviews-scroll" data-simplebar>
-            <p>@описание</p>
+          <div class="customScroll reviews-scroll inf-scroll" data-simplebar>
+            <p style="margin: 0; padding-left: 5px; padding-right: 5px; text-align: justify;">@описание</p>
           </div>
         </div>
       </div>
@@ -587,7 +580,7 @@
               </h1>
               <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
-              <p><strong>Описание:</strong> ${point.description || 'Не указано'} <button class="baloon__information-btn" id="full-obj-information">Подробнее</button></p> 
+              <p><strong>Описание:</strong> ${getFirstParagraph(point.description) || 'Не указано'} <button class="baloon__information-btn baloon__information-btn_mod" id="full-obj-information">Подробнее</button></p>
               <button class="baloon__btn" id ="toRoute">Добавить в маршрут</button>
               <div class="baloon__title-menu">
                 <button class="baloon__information-btn" id="addReview">Отзывы</button>
@@ -613,6 +606,12 @@
                 iconSize = [30, 42];
                 iconOffset = [-15, -42];
             } 
+
+            function getFirstParagraph(description) {
+              if (!description) return null;
+              const firstParagraph = description.split('\n')[0];
+              return firstParagraph.length > 100 ? firstParagraph.substring(0, 100) + '...' : firstParagraph;
+            }
 
           var myPlacemark = new ymaps.Placemark(point.coordinates, {
             balloonContent: content,
@@ -686,13 +685,14 @@
                     document.getElementById('reviews-list').innerHTML = '';
                   });
 
-                  document.querySelector("#full-obj-information").addEventListener("click", function () {
-                    document.querySelector("#obj-info-menu").classList.toggle("menu-is-active");
-                  });
-
-                  document.querySelector("#full-information").addEventListener("click", function () {
-                    document.querySelector("#obj-info-menu").classList.toggle("menu-is-active");
-                    document.querySelector("#filter-menu").classList.toggle("menu-is-active");
+                  document.querySelector('#full-obj-information').addEventListener('click', function() {
+                    document.querySelector("#obj-info-menu").classList.add("menu-is-active");
+                    
+                    const titleElement = document.querySelector("#obj-info-menu .view__title");
+                    const descriptionElement = document.querySelector("#obj-info-menu .customScroll p");
+                    
+                    titleElement.textContent = point.name;
+                    descriptionElement.textContent = point.description || 'Описание отсутствует';
                   });
 
                   checkFavoriteStatus(pointId);                  

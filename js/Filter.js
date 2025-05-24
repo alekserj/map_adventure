@@ -34,9 +34,16 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-    document.querySelectorAll("#full-information").addEventListener("click", function () {
-      document.querySelector("#obj-info-menu").classList.toggle("menu-is-active");
-      document.querySelector("#filter-menu").classList.toggle("menu-is-active");
+    li.querySelector('#full-information').addEventListener('click', function() {
+      document.querySelector("#obj-info-menu").classList.add("menu-is-active");
+      
+      // Находим элемент с заголовком и описанием
+      const titleElement = document.querySelector("#obj-info-menu .view__title");
+      const descriptionElement = document.querySelector("#obj-info-menu .customScroll p");
+      
+      // Устанавливаем данные
+      titleElement.textContent = point.name;
+      descriptionElement.textContent = point.description || 'Описание отсутствует';
     });
   }
 

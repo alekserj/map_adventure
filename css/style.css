@@ -654,6 +654,7 @@ a {
 }
 
 .view__reviews-menu-list{
+  margin: 0;
   padding-left: 5px;
   padding-right: 5px;
   list-style: none;
@@ -670,6 +671,7 @@ a {
   padding: 15px;
   border-bottom: 1px solid #eee;
   margin-bottom: 10px;
+  border-radius: 10px;
 }
 
 .view__reviews-menu-user {
@@ -849,4 +851,14 @@ a {
 
 .view__form_reviews_search{
   padding-top: 0;
+}
+
+.baloon__information-btn_mod{
+  padding: 0;
+  margin: 0;
+}
+
+.inf-scroll{
+  margin: 0;
+  outline: none;
 }
