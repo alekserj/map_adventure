@@ -1,4 +1,5 @@
 <?php
+session_start();
 header('Content-Type: application/json; charset=utf-8');
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
@@ -27,17 +28,31 @@ try {
 
     $descriptionUpdated = false;
     if ($description !== null && $description !== '') {
-        $stmt = $db->prepare("UPDATE points SET description = ? WHERE id = ?");
-        if (!$stmt) {
-            throw new Exception('Ошибка подготовки запроса: ' . $db->error, 500);
+        if (isset($_SESSION['user']) && $_SESSION['user']['email'] === 'admin@admin.adm') {
+            $stmt = $db->prepare("UPDATE points SET description = ? WHERE id = ?");
+            if (!$stmt) {
+                throw new Exception('Ошибка подготовки запроса: ' . $db->error, 500);
+            }
+            
+            $stmt->bind_param("si", $description, $objectId);
+            if (!$stmt->execute()) {
+                throw new Exception('Ошибка обновления описания: ' . $stmt->error, 500);
+            }
+            $stmt->close();
+            $descriptionUpdated = true;
+        } else {
+            $stmt = $db->prepare("UPDATE point_status SET pending_description = ? WHERE point_id = ?");
+            if (!$stmt) {
+                throw new Exception('Ошибка подготовки запроса: ' . $db->error, 500);
+            }
+            
+            $stmt->bind_param("si", $description, $objectId);
+            if (!$stmt->execute()) {
+                throw new Exception('Ошибка сохранения описания на модерацию: ' . $stmt->error, 500);
+            }
+            $stmt->close();
+            $descriptionUpdated = true;
         }
-        
-        $stmt->bind_param("si", $description, $objectId);
-        if (!$stmt->execute()) {
-            throw new Exception('Ошибка обновления описания: ' . $stmt->error, 500);
-        }
-        $stmt->close();
-        $descriptionUpdated = true;
     }
 
     $uploadedImagesCount = 0;
@@ -48,12 +63,11 @@ try {
             throw new Exception('Не удалось создать директорию для загрузки', 500);
         }
 
-        if (!is_writable($uploadDir)) {
-            $perms = fileperms($uploadDir);
-            throw new Exception("Директория {$uploadDir} недоступна для записи. Права: " . substr(sprintf('%o', $perms), -4), 500);
-        }
+        $isAdmin = isset($_SESSION['user']) && $_SESSION['user']['email'] === 'admin@admin.adm';
+        $isPending = $isAdmin ? 0 : 1;
+        $isApproved = $isAdmin ? 1 : 0;
 
-        $stmt = $db->prepare("INSERT INTO pictures (object_id, link) VALUES (?, ?)");
+        $stmt = $db->prepare("INSERT INTO pictures (object_id, link, is_approved, is_pending) VALUES (?, ?, ?, ?)");
         if (!$stmt) throw new Exception('Ошибка подготовки SQL: ' . $db->error, 500);
 
         foreach ($_FILES['images']['tmp_name'] as $key => $tmpName) {
@@ -92,7 +106,7 @@ try {
             }
 
             $webPath = '/object_pictures/' . $filename;
-            $stmt->bind_param("is", $objectId, $webPath);
+            $stmt->bind_param("isii", $objectId, $webPath, $isApproved, $isPending);
             
             if (!$stmt->execute()) {
                 log_error("DB Error: " . $stmt->error);
@@ -107,7 +121,9 @@ try {
 
     $response = [
         'success' => true,
-        'message' => 'Данные успешно сохранены',
+        'message' => isset($_SESSION['user']) && $_SESSION['user']['email'] === 'admin@admin.adm' 
+            ? 'Данные успешно сохранены' 
+            : 'Данные отправлены на модерацию',
         'description_updated' => $descriptionUpdated,
         'images_uploaded' => $uploadedImagesCount
     ];
@@ -124,3 +140,4 @@ try {
         'error_code' => $e->getCode()
     ], JSON_UNESCAPED_SLASHES);
 }
+?>

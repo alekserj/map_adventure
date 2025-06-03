@@ -50,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['user'] = [
         'id' => $user['id'],
         'nickname' => $user['nickname'],
-        'email' => $user['email']
+        'email' => $user['email'],
+        'isAdmin' => $user['email'] === 'admin@admin.adm' // добавляем флаг администратора
     ];
     
     header('Location: /');

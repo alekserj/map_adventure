@@ -1,35 +1,43 @@
 document.addEventListener("DOMContentLoaded", function() {
+    const accountBtn = document.getElementById("account");
+    const accountMenu = document.getElementById("account-menu");
+    const cabinetMenu = document.getElementById("cabinet-menu");
+    const adminMenu = document.getElementById("admin-menu");
+    const accountMenuClose = document.getElementById("account-menu-close");
+    const cabinetMenuClose = document.getElementById("cabinet-menu-close");
+    const adminMenuClose = document.getElementById("admin-menu-close");
+    const createAccountBtn = document.getElementById("createAccount");
+    const accountExistsBtn = document.getElementById("accountExists");
 
-  const accountBtn = document.getElementById("account");
-  const accountMenu = document.getElementById("account-menu");
-  const cabinetMenu = document.getElementById("cabinet-menu");
-  const accountMenuClose = document.getElementById("account-menu-close");
-  const cabinetMenuClose = document.getElementById("cabinet-menu-close");
-  const createAccountBtn = document.getElementById("createAccount");
-  const accountExistsBtn = document.getElementById("accountExists");
-
-  hideAllMenus();
+    hideAllMenus();
 
   accountBtn.addEventListener("click", async function() {
-      try {
-          const authStatus = await checkAuth();
-          
-          if (authStatus.isAuth) {
-              showMenu(cabinetMenu);
-              hideMenu(accountMenu);
-          } else {
-              showMenu(accountMenu);
-              hideMenu(cabinetMenu);
-          }
-      } catch (error) {
-          console.error("Auth check failed:", error);
-          showMenu(accountMenu);
-          hideMenu(cabinetMenu);
-      }
-  });
+    try {
+        const authStatus = await checkAuth();
+        
+        if (authStatus.isAuth) {
+            if (authStatus.email === 'admin@admin.adm') {
+                showMenu(adminMenu);
+            } else {
+                showMenu(cabinetMenu);
+            }
+            hideMenu(accountMenu);
+        } else {
+            showMenu(accountMenu);
+            hideMenu(cabinetMenu);
+            hideMenu(adminMenu);
+        }
+    } catch (error) {
+        console.error("Auth check failed:", error);
+        showMenu(accountMenu);
+        hideMenu(cabinetMenu);
+        hideMenu(adminMenu);
+    }
+});
 
-  accountMenuClose.addEventListener("click", () => hideMenu(accountMenu));
-  cabinetMenuClose.addEventListener("click", () => hideMenu(cabinetMenu));
+accountMenuClose.addEventListener("click", () => hideMenu(accountMenu));
+cabinetMenuClose.addEventListener("click", () => hideMenu(cabinetMenu));
+adminMenuClose.addEventListener("click", () => hideMenu(adminMenu));
 
   createAccountBtn.addEventListener("click", (e) => {
       e.preventDefault();
@@ -58,25 +66,25 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 async function checkAuth() {
-  try {
-      const response = await fetch('include/check-auth.php', {
-          headers: {
-              'Accept': 'application/json',
-              'X-Requested-With': 'XMLHttpRequest'
-          },
-          credentials: 'include' 
-      });
+    try {
+        const response = await fetch('include/auth.php', {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'include' 
+        });
 
-      if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-      }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-      const data = await response.json();
-      return data;
-  } catch (error) {
-      console.error("Error checking auth:", error);
-      throw error;
-  }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error checking auth:", error);
+        throw error;
+    }
 }
 
 function showMenu(menuElement) {

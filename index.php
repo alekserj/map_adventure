@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.4</title>
+    <title>Версия 0.3.9</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -40,6 +40,11 @@
     <section class="view">
       <nav class="view__nav">
         <ul class="view__list">
+          <li class="view__item">
+            <button class="view__add-object-menu-btn" id="search">
+              <img class="view__add-object-menu-pic" src="/img/search.svg" alt="поиск" />
+            </button>
+          </li>
           <li class="view__item">
             <button class="view__add-object-menu-btn" id="route">
               <img class="view__add-object-menu-pic" src="/img/route2.svg" alt="маршрут" />
@@ -90,11 +95,32 @@
           <li><button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button></li>
         </ul>
         <button type="button" class="view__form-btn" id="optimize-route-btn">Оптимизировать маршрут</button>
+
+
+        <h2 class="view__title">Кольцевой маршрут</h2>
+        <div class="circular-route-block">
+          <button type="button" class="view__form-btn" id="select-circular-center">Выбрать место на карте</button>
+
+          <div class="circular-route-inputs">
+            <label>
+              Длина маршрута (км):
+              <input type="number" id="circular-distance" min="1" max="100" value="5" />
+            </label>
+            <label>
+              Время в пути (мин):
+              <input type="number" id="circular-duration" min="1" max="300" value="30" />
+            </label>
+          </div>
+
+          
+          <button type="button" class="view__form-btn" id="build-circular-route">Построить кольцевой маршрут</button>
+        </div>
+
         <div class="route-info" id="route-info">
           <p class="route-info__distance">Длина маршрута: 0 км</p>
           <p class="route-info__time">Время в пути: 0 мин</p>
         </div>
-        <button type="button" id="toggle-instructions-btn" style="display: none;">Показать подробности</button>
+        <button class="view__form-btn" type="button" id="toggle-instructions-btn" style="display: none;">Показать подробности</button>
         <div id="navigation-instructions" style="display: none;"></div>
         </form>
       </div>
@@ -112,7 +138,55 @@
               <li><label><input type="checkbox" value="Природные" checked /> Природные</label></li>
               <li><label><input type="checkbox" value="Религиозные" checked /> Религиозные</label></li>
             </ul>
+            <h2 class="view__title">Список достопримечательностей</h2>
           </form>
+          <div class="customScroll reviews-scroll" data-simplebar>
+            <ul class="view__reviews-menu-list" id="objects-list">
+
+            </ul>
+          </div>
+      </div>
+
+      <div class="view__search-menu" id="search-menu">
+        <form class="view__form view__form_reviews view__form_reviews_search" id="search-form">
+          <input type="hidden" id="review-object-id" name="object_id" value="">
+          <textarea
+            class="view__textarea reviews-textarea"
+            type="text"
+            placeholder="Введите название или адрес объекта"
+            name="search-object"
+            id = "search-object"
+          ></textarea>
+          <button class="view__add-object-menu-btn" id="search_object">
+              <img class="view__add-object-menu-pic" src="/img/search.svg" alt="оставить отзыв" />
+          </button>
+        </form>
+        <button class="view__add-object-menu-btn" id="search-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+      </div>
+
+      <div class="view__obj-info-menu" id="obj-info-menu">
+        <button class="view__add-object-menu-btn" id="obj-info-menu-close">
+          <img src="/img/close.svg" alt="закрыть меню" />
+        </button>
+        <div class="view__form">
+          <h2 class="view__title">@Название достопримечательности</h2>
+          <div class="swiper">
+            <div class="swiper-wrapper" id="obj-info-swiper-wrapper">
+
+            </div>
+            <div class="swiper-pagination"></div>
+
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+
+            <div class="swiper-scrollbar"></div>
+          </div>
+          <div class="customScroll reviews-scroll inf-scroll" data-simplebar>
+            <p style="margin: 0; padding-left: 5px; padding-right: 5px; text-align: justify;">@описание</p>
+          </div>
+        </div>
       </div>
 
       <div class="view__add-object-menu" id="add-object-menu">
@@ -322,7 +396,7 @@
         </form>
       </div>
 
-      <div class="view__cabinet-menu" id="cabinet-menu" style="<?php echo $isAuth ? '' : 'display: none;'; ?>">
+      <div class="view__cabinet-menu" id="cabinet-menu" style="<?php echo ($isAuth && $user['email'] !== 'admin@admin.adm') ? '' : 'display: none;'; ?>">
         <ul class="view__route-btn-list">
           <li>
             <a class="view__add-object-menu-btn" href="/include/logout.php">
@@ -394,10 +468,116 @@
         <div class="view__map" id="map"></div>
           <button id="toggle-location-btn">Показать местоположение</button>
         </div>
-
      
-
-      
+        <div class="view__admin-menu" id="admin-menu" style="<?php echo ($isAuth && $user['email'] === 'admin@admin.adm') ? '' : 'display: none;'; ?>">
+          <ul class="view__route-btn-list">
+              <li>
+                  <a class="view__add-object-menu-btn" href="/include/logout.php">
+                      <img src="/img/logout.svg" alt="выйти из аккаунта">
+                  </a>
+              </li>
+              <li>
+                  <button class="view__add-object-menu-btn" id="admin-menu-close">
+                      <img src="/img/close.svg" alt="закрыть меню" />
+                  </button>
+              </li>
+          </ul>
+          <div class="view__form">
+              <h2 class="view__title">Панель администратора</h2>
+              <div class="view__admin-sections">
+                  <div class="admin-section">
+                      <h3 class="view__admin-title">Ожидающие одобрения объекты</h3>
+                      <div class="customScroll reviews-scroll admin-applications" data-simplebar>
+                          <ul class="view__admin-list" id="pending-objects">
+                              <?php
+                              $mysqli = new mysqli("localhost", "root", "", "map");
+                              $sql = "SELECT p.id, p.name, p.street, p.category 
+                                      FROM points p
+                                      JOIN point_status ps ON p.id = ps.point_id
+                                      WHERE ps.is_approved = 0";
+                              $result = $mysqli->query($sql);
+                              
+                              if ($result && $result->num_rows > 0) {
+                                  while ($row = $result->fetch_assoc()) {
+                                      echo '<li class="view__admin-item">
+                                              <h4 class="view__admin-item-title">'.$row['name'].'</h4>
+                                              <p>Категория: '.$row['category'].'</p>
+                                              <p>Адрес: '.$row['street'].'</p>
+                                              <div class="view__admin-buttons">
+                                                <button class="admin-btn admin-btn-approve approve-btn" data-id="'.$row['id'].'" data-type="point">Одобрить</button>
+                                                <button class="admin-btn admin-btn-reject  reject-btn" data-id="'.$row['id'].'" data-type="point">Отклонить</button>
+                                              </div>
+                                            </li>';
+                                  }
+                              } else {
+                                  echo '<li class="no-points">Нет объектов на модерации</li>';
+                              }
+                              ?>
+                          </ul>
+                      </div>
+                  </div>
+                  <div class="admin-section">
+                      <h3 class="view__admin-title">Ожидающие одобрения описания</h3>
+                      <div class="customScroll reviews-scroll admin-applications" data-simplebar>
+                          <ul class="view__admin-list" id="pending-descriptions">
+                              <?php
+                              $sql = "SELECT p.id, p.name, ps.pending_description 
+                                      FROM points p
+                                      JOIN point_status ps ON p.id = ps.point_id
+                                      WHERE ps.pending_description IS NOT NULL AND ps.is_info_approved = 0";
+                              $result = $mysqli->query($sql);
+                              
+                              if ($result && $result->num_rows > 0) {
+                                  while ($row = $result->fetch_assoc()) {
+                                      echo '<li class="view__admin-item">
+                                              <h4 class="view__admin-item-title">'.$row['name'].'</h4>
+                                              <p>Новое описание: '.substr($row['pending_description'], 0, 100).'...</p>
+                                              <div class="view__admin-buttons">
+                                                <button class="admin-btn admin-btn-approve approve-btn" data-id="'.$row['id'].'" data-type="description">Одобрить</button>
+                                                <button class="admin-btn admin-btn-reject reject-btn" data-id="'.$row['id'].'" data-type="description">Отклонить</button>
+                                              </div>
+                                            </li>';
+                                  }
+                              } else {
+                                  echo '<li class="no-points">Нет описаний на модерации</li>';
+                              }
+                              ?>
+                          </ul>
+                      </div>
+                  </div>
+                  <div class="admin-section">
+                      <h3 class="view__admin-title">Ожидающие одобрения изображения</h3>
+                      <div class="customScroll reviews-scroll admin-applications" data-simplebar>
+                          <ul class="view__admin-list" id="pending-images">
+                              <?php
+                              $sql = "SELECT p.id as point_id, p.name, pic.id as pic_id, pic.link 
+                                      FROM pictures pic
+                                      JOIN points p ON pic.object_id = p.id
+                                      WHERE pic.is_pending = 1";
+                              $result = $mysqli->query($sql);
+                              
+                              if ($result && $result->num_rows > 0) {
+                                  while ($row = $result->fetch_assoc()) {
+                                      echo '<li class="view__admin-item">
+                                              <h4 class="view__admin-item-title">'.$row['name'].'</h4>
+                                              <img class="view__admin-item-img" src="/include'.$row['link'].'" style="max-width: 100px; max-height: 100px;">
+                                              <div class="view__admin-buttons">
+                                                <button class="admin-btn admin-btn-approve approve-btn" data-id="'.$row['pic_id'].'" data-type="image">Одобрить</button>
+                                                <button class="admin-btn admin-btn-reject reject-btn" data-id="'.$row['pic_id'].'" data-type="image">Отклонить</button>
+                                              </div>
+                                            </li>';
+                                  }
+                              } else {
+                                  echo '<li class="no-points">Нет изображений на модерации</li>';
+                              }
+                              $mysqli->close();
+                              ?>
+                          </ul>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>    
 
     </section>
   </body>
@@ -421,6 +601,8 @@
     
         var points = <?php echo json_encode($points); ?>;
 
+        setPointsInstance(points);
+
         window.placemarks = [];
 
         points.forEach(function(point) {
@@ -433,7 +615,7 @@
               </h1>
               <p><strong>Улица:</strong> ${point.street || 'Не указано'}</p> 
               <p><strong>Категория:</strong> ${point.category || 'Не указано'}</p> 
-              <p><strong>Описание:</strong> ${point.description || 'Не указано'}</p> 
+              <p><strong>Описание:</strong> ${getFirstParagraph(point.description) || 'Не указано'} <button class="baloon__information-btn baloon__information-btn_mod" id="full-obj-information">Подробнее</button></p>
               <button class="baloon__btn" id ="toRoute">Добавить в маршрут</button>
               <div class="baloon__title-menu">
                 <button class="baloon__information-btn" id="addReview">Отзывы</button>
@@ -460,6 +642,12 @@
                 iconOffset = [-15, -42];
             } 
 
+            function getFirstParagraph(description) {
+              if (!description) return null;
+              const firstParagraph = description.split('\n')[0];
+              return firstParagraph.length > 100 ? firstParagraph.substring(0, 100) + '...' : firstParagraph;
+            }
+
           var myPlacemark = new ymaps.Placemark(point.coordinates, {
             balloonContent: content,
             }, {
@@ -479,7 +667,6 @@
 
                   const pointId = document.getElementById('informationId').value;
                   
-                  // Привязываем обработчик с обновлением всех балунов
                   const favoriteBtn = document.querySelector('#addFavoritePoint');
                   if (favoriteBtn) {
                     favoriteBtn.onclick = async () => {
@@ -533,6 +720,53 @@
                     document.getElementById('reviews-list').innerHTML = '';
                   });
 
+                  document.querySelector('#full-obj-information').addEventListener('click', function() {
+                    document.querySelector("#obj-info-menu").classList.add("menu-is-active");
+                    
+                    const titleElement = document.querySelector("#obj-info-menu .view__title");
+                    const descriptionElement = document.querySelector("#obj-info-menu .customScroll p");
+                    const swiperWrapper = document.querySelector("#obj-info-swiper-wrapper");
+                    
+                    titleElement.textContent = point.name;
+                    descriptionElement.textContent = point.description || 'Описание отсутствует';
+                    
+                    // Очищаем слайдер
+                    swiperWrapper.innerHTML = '';
+                    
+                    // Используем уже загруженные изображения из point.images
+                    if (point.images && point.images.length > 0) {
+                      point.images.forEach(image => {
+                        const slide = document.createElement('div');
+                        slide.className = 'swiper-slide';
+                        slide.style.backgroundImage = `url(/include${image})`;
+                        swiperWrapper.appendChild(slide);
+                      });
+                    } else {
+                      // Если изображений нет, добавляем заглушку
+                      const slide = document.createElement('div');
+                      slide.className = 'swiper-slide';
+                      slide.style.backgroundImage = 'url(/img/hero_img.jpg)';
+                      swiperWrapper.appendChild(slide);
+                    }
+                    
+                    // Инициализируем Swiper
+                    if (window.objInfoSwiper) {
+                      window.objInfoSwiper.destroy();
+                    }
+                    
+                    window.objInfoSwiper = new Swiper('#obj-info-menu .swiper', {
+                      loop: true,
+                      pagination: {
+                        el: '#obj-info-menu .swiper-pagination',
+                        clickable: true,
+                      },
+                      navigation: {
+                        nextEl: '#obj-info-menu .swiper-button-next',
+                        prevEl: '#obj-info-menu .swiper-button-prev',
+                      },
+                    });
+                  });
+
                   checkFavoriteStatus(pointId);                  
                   attachRouteButtonHandler(point.coordinates, point.name);
                 });
@@ -557,9 +791,10 @@
                 placemark: myPlacemark,
                 category: point.category,
                 isOnMap: isInitiallyVisible,
+                pointData: point
               });
             });
-
+            
         document.getElementById("plus").addEventListener("click", function () {
           addPlacemark(myMap);
         });
@@ -585,6 +820,44 @@
           });
       }
     </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          document.querySelectorAll('.approve-btn, .reject-btn').forEach(btn => {
+              btn.addEventListener('click', function() {
+                  const id = this.getAttribute('data-id');
+                  const type = this.getAttribute('data-type');
+                  const isApprove = this.classList.contains('approve-btn');
+                  const item = this.closest('.view__admin-item');
+                  const containerId = type === 'image' ? 'pending-images' : 
+                                    type === 'description' ? 'pending-info' : 'pending-objects';
+                  
+                  fetch('/include/moderate.php', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                          id: id,
+                          type: type,
+                          action: isApprove ? 'approve' : 'reject'
+                      })
+                  })
+                  .then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          item.remove();
+                          const container = document.getElementById(containerId);
+                          if (container.querySelectorAll('.view__admin-item').length === 0) {
+                              container.innerHTML = '<li class="no-points">Нет элементов на модерации</li>';
+                          }
+                      } else {
+                          alert('Ошибка: ' + data.message);
+                      }
+                  });
+              });
+          });
+      });
+    </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/js/routeHandler.js"></script>
     <script src="/js/addData.js"></script>
@@ -596,6 +869,8 @@
     <script src="/js/favoritePoint.js"></script>
     <script src="/js/openRouteMenu.js"></script>
     <script src="/js/openFilterMenu.js"></script>
+    <script src="/js/openSearchMenu.js"></script>
+    <script src="/js/openObjectInformationMenu.js"></script>
     <script src="/js/openAddMenu.js"></script>
     <script src="/js/openAccountMenu.js"></script>
     <script src="/js/openRegistrationMenu.js"></script>
@@ -611,4 +886,3 @@
       });
     </script>         
 </html>
-

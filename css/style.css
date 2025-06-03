@@ -86,7 +86,10 @@ a {
 .view__registration-menu,
 .view__cabinet-menu,
 .view__add-information-menu,
-.view__reviews-menu {
+.view__reviews-menu,
+.view__admin-menu,
+.view__search-menu,
+.view__obj-info-menu {
     position: absolute;
     top: 0;
     right: 0;
@@ -570,9 +573,14 @@ a {
 }
 
 .filter__checkbox-list {
-  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
   margin: 0;
   padding: 0;
+  padding-bottom: 12px;
+  list-style: none;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.5);
 }
 
 .filter__checkbox-list li {
@@ -583,7 +591,6 @@ a {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
   color: #222;
   cursor: pointer;
 }
@@ -647,6 +654,7 @@ a {
 }
 
 .view__reviews-menu-list{
+  margin: 0;
   padding-left: 5px;
   padding-right: 5px;
   list-style: none;
@@ -663,6 +671,7 @@ a {
   padding: 15px;
   border-bottom: 1px solid #eee;
   margin-bottom: 10px;
+  border-radius: 10px;
 }
 
 .view__reviews-menu-user {
@@ -710,4 +719,146 @@ a {
 }
 #toggle-location-btn:hover {
   background-color: #f0f0f0;
+}
+
+.view__admin-menu{
+  width: 45%;
+}
+
+.view__admin-sections {
+  display: flex;
+  height: calc(100% - 60px);
+  gap: 20px;
+}
+
+.admin-section {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.view__admin-title {
+  margin: 0 !important;
+  font-size: 18px;
+  margin-bottom: 10px;
+  text-align: center;
+  color: #333;
+}
+
+.view__admin-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.view__admin-item {
+  margin: 5px;
+  padding: 10px;
+  background-color: rgba(128, 128, 128, 0.2);
+  border-radius: 10px;
+}
+
+.view__admin-item-title{
+  margin: 0;
+}
+
+.view__admin-item-img{
+  display: block;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.admin-item__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.view__admin-buttons{
+  display: flex;
+  gap: 15px;
+}
+
+.admin-btn {
+  width: 100%;
+  height: 30px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.admin-btn-approve {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.admin-btn-reject {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.admin-btn:hover {
+  transform: scale(1.01);
+}
+
+.view__reviews-menu-item {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+}
+
+.view__reviews-menu-item-title {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.view__reviews-menu-item-text {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.filter-btn-list{
+  display: flex;
+  justify-content: space-between;
+  padding: 0;
+  list-style: none;
+}
+
+.view__obj-list-btn{
+  width: auto;
+  padding: 7px 15px;
+}
+
+.no-objects {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+}
+
+.view__search-menu{
+  flex-direction: row;
+  padding: 10px 20px 10px 40px;
+}
+
+.view__form_reviews_search{
+  padding-top: 0;
+}
+
+.baloon__information-btn_mod{
+  padding: 0;
+  margin: 0;
+}
+
+.inf-scroll{
+  margin: 0;
+  outline: none;
 }
