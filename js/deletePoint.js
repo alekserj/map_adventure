@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         if (data.success) {
                             e.target.closest('.view__reviews-menu-item').remove();
-                            // Удаляем метку с карты
                             const placemarkIndex = window.placemarks.findIndex(p => p.pointData.id == pointId);
                             if (placemarkIndex !== -1) {
                                 window.myMap.geoObjects.remove(window.placemarks[placemarkIndex].placemark);
