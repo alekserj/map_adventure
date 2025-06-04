@@ -65,6 +65,34 @@ if ($result->num_rows > 0) {
     }
 }
 
+if ($isAdmin) {
+    $adminPoints = [];
+    $adminSql = "SELECT p.id, p.name, p.street, p.category, 
+                        p.description, 
+                        ST_AsText(p.geo) AS geo_text 
+                 FROM points p";
+    $adminResult = $mysqli->query($adminSql);
+    
+    if ($adminResult->num_rows > 0) {
+        while ($row = $adminResult->fetch_assoc()) {
+            preg_match('/POINT\(([^ ]+) ([^ ]+)\)/', $row['geo_text'], $matches);
+            if (count($matches) == 3) {
+                $longitude = (float)$matches[1];
+                $latitude = (float)$matches[2];
+                
+                $adminPoints[] = [
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'street' => $row['street'],
+                    'category' => $row['category'],
+                    'description' => $row['description'],
+                    'coordinates' => [$latitude, $longitude]
+                ];
+            }
+        }
+    }
+}
+
 $mysqli->close();
 return $points;
 ?>

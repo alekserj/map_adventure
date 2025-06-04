@@ -16,7 +16,7 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Версия 0.3.9</title>
+    <title>Версия 0.3.10</title>
     <link rel="stylesheet" href="/css/normalize.css" />
     <link rel="stylesheet" href="/css/choices.min.css" />
     <link
@@ -81,27 +81,47 @@
             </button>
           </li>
         </ul>
-        <form
-          class="view__form"
-          id="route-form"
-        >
-        <h2 class="view__title">Маршрут</h2>
-        <ul id="route-list" class="route-list"></ul>
-        <button class="view__form-btn" type="button" id="addFavoriteRoute">Добавить в избранное</button>
-        <h2 class="view__title">Тип маршрута:</h2>
-        <ul class="route__list-btn" id="route-type-buttons">
-          <li><button type="button" data-type="auto" class="route-btn active">Автомобиль</button></li>
-          <li><button type="button" data-type="pedestrian" class="route-btn">Пешком</button></li>
-          <li><button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button></li>
-        </ul>
-        <button type="button" class="view__form-btn" id="optimize-route-btn">Оптимизировать маршрут</button>
-        <div class="route-info" id="route-info">
-          <p class="route-info__distance">Длина маршрута: 0 км</p>
-          <p class="route-info__time">Время в пути: 0 мин</p>
+        <div class="customScroll view__route-menu-scroll" data-simplebar>
+          <form
+            class="view__form"
+            id="route-form"
+          >
+            <h2 class="view__title">Маршрут</h2>
+            <ul id="route-list" class="route-list"></ul>
+            <button class="view__form-btn" type="button" id="addFavoriteRoute">Добавить в избранное</button>
+            <h2 class="view__title">Тип маршрута:</h2>
+            <ul class="route__list-btn" id="route-type-buttons">
+              <li><button type="button" data-type="auto" class="route-btn active">Автомобиль</button></li>
+              <li><button type="button" data-type="pedestrian" class="route-btn">Пешком</button></li>
+              <li><button type="button" data-type="masstransit" class="route-btn">Общественный транспорт</button></li>
+            </ul>
+            <button type="button" class="view__form-btn" id="optimize-route-btn">Оптимизировать маршрут</button>
+
+            <h2 class="view__title">Кольцевой маршрут</h2>
+            <div class="circular-route-block">
+              <div class="circular-route-inputs">
+                <label>
+                  Длина маршрута (км):
+                  <input type="number" id="circular-distance" min="1" max="100" value="5" />
+                </label>
+                <label>
+                  Время в пути (мин):
+                  <input type="number" id="circular-duration" min="1" max="300" value="30" />
+                </label>
+              </div>
+              <div class="circular-route-block-btns">
+                <button type="button" class="view__form-btn" id="select-circular-center">Выбрать место на карте</button>
+                <button type="button" class="view__form-btn circle" id="build-circular-route">Построить кольцевой маршрут</button>
+              </div>
+            </div>
+            <div class="route-info" id="route-info">
+              <p class="route-info__distance">Длина маршрута: 0 км</p>
+              <p class="route-info__time">Время в пути: 0 мин</p>
+            </div>
+            <button class="view__form-btn" type="button" id="toggle-instructions-btn" style="display: none;">Показать подробности</button>
+            <div id="navigation-instructions" style="display: none;"></div>
+          </form>
         </div>
-        <button class="view__form-btn" type="button" id="toggle-instructions-btn" style="display: none;">Показать подробности</button>
-        <div id="navigation-instructions" style="display: none;"></div>
-        </form>
       </div>
 
       <div class="view__filter-menu" id="filter-menu">
@@ -510,7 +530,9 @@
                                   while ($row = $result->fetch_assoc()) {
                                       echo '<li class="view__admin-item">
                                               <h4 class="view__admin-item-title">'.$row['name'].'</h4>
-                                              <p>Новое описание: '.substr($row['pending_description'], 0, 100).'...</p>
+                                              <div class="customScroll reviews-scroll admin-applications admin-application-scroll" data-simplebar>
+                                                Новое описание: '.substr($row['pending_description'], 0, 1000000000000).'
+                                              </div>
                                               <div class="view__admin-buttons">
                                                 <button class="admin-btn admin-btn-approve approve-btn" data-id="'.$row['id'].'" data-type="description">Одобрить</button>
                                                 <button class="admin-btn admin-btn-reject reject-btn" data-id="'.$row['id'].'" data-type="description">Отклонить</button>
@@ -555,8 +577,25 @@
                       </div>
                   </div>
               </div>
+              <h2 class="view__title">Список достопримечательностей</h2>
+              <div class="customScroll reviews-scroll admin-scroll" data-simplebar>
+                <ul class="view__reviews-menu-list" id="objects-admin-list">
+                    <?php foreach ($adminPoints as $point): ?>
+                    <li class="view__reviews-menu-item">
+                        <div class="view__reviews-menu-item-content">
+                            <h3 class="view__reviews-menu-item-title"><?= htmlspecialchars($point['name']) ?></h3>
+                            <p class="view__reviews-menu-item-text"><strong>Категория:</strong> <?= htmlspecialchars($point['category']) ?></p>
+                            <p class="view__reviews-menu-item-text"><strong>Адрес:</strong> <?= htmlspecialchars($point['street'] ?? 'Не указан') ?></p>
+                            <button class="view__form-btn view__obj-list-btn delete-btn" 
+                                    data-id="<?= $point['id'] ?>">Удалить</button>
+                        </div>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+              </div>
           </div>
       </div>    
+
     </section>
   </body>
   <script>
@@ -578,6 +617,8 @@
         initLocationToggle(myMap);
     
         var points = <?php echo json_encode($points); ?>;
+
+        setPointsInstance(points);
 
         window.placemarks = [];
 
@@ -706,10 +747,8 @@
                     titleElement.textContent = point.name;
                     descriptionElement.textContent = point.description || 'Описание отсутствует';
                     
-                    // Очищаем слайдер
                     swiperWrapper.innerHTML = '';
                     
-                    // Используем уже загруженные изображения из point.images
                     if (point.images && point.images.length > 0) {
                       point.images.forEach(image => {
                         const slide = document.createElement('div');
@@ -718,14 +757,12 @@
                         swiperWrapper.appendChild(slide);
                       });
                     } else {
-                      // Если изображений нет, добавляем заглушку
                       const slide = document.createElement('div');
                       slide.className = 'swiper-slide';
                       slide.style.backgroundImage = 'url(/img/hero_img.jpg)';
                       swiperWrapper.appendChild(slide);
                     }
                     
-                    // Инициализируем Swiper
                     if (window.objInfoSwiper) {
                       window.objInfoSwiper.destroy();
                     }
@@ -842,6 +879,7 @@
     <script src="/js/addObjectInformation.js"></script>
     <script src="/js/addReview.js"></script>
     <script src="/js/choices.min.js"></script>
+    <script src="/js/deletePoint.js"></script>
     <script src="/js/favoritePoint.js"></script>
     <script src="/js/openRouteMenu.js"></script>
     <script src="/js/openFilterMenu.js"></script>

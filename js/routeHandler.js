@@ -2,12 +2,14 @@ document.addEventListener('DOMContentLoaded', setupRouteTypeButtons);
 document.addEventListener('DOMContentLoaded', setupResetButton);
 document.addEventListener('DOMContentLoaded', setupRouteModalHandlers);
 document.addEventListener("DOMContentLoaded", initInstructionsToggle);
+document.addEventListener("DOMContentLoaded", setupCircularRoute);
 
 
 let mapInstance = null;
 let routePoints = [];
 let currentRoute = null;
 let currentRouteType = 'auto';
+
 
 function setMapInstance(map) {
   mapInstance = map;
@@ -219,6 +221,13 @@ function drawCustomRoute() {
       }
     }
   });
+  console.log('Точки маршрута:', routePoints);
+console.log('Координаты:', routePoints.map(p => p.coords));
+console.log('Тип маршрута:', currentRouteType);
+
+multiRoute.model.events.add('requestfail', function(e) {
+  console.error('Ошибка построения маршрута:', e);
+});
 
   setTimeout(updateRouteListUI, 50);
   enableRouteListSorting();
@@ -472,4 +481,152 @@ function showNavigationInstructionsFromMultiRoute(route) {
 
   html += '</ol>';
   instructionsContainer.innerHTML = html;
+}
+
+
+
+
+let tempPlacemark = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const selectBtn = document.getElementById('select-circular-center');
+  if (!selectBtn) return;
+
+
+  selectBtn.addEventListener('click', () => {
+    if (!mapInstance) {
+      alert('Карта ещё не загружена.');
+      return;
+    }
+
+    // Если метка уже есть — удалить старую
+    if (tempPlacemark) {
+      mapInstance.geoObjects.remove(tempPlacemark);
+      tempPlacemark = null;
+    }
+
+    const center = mapInstance.getCenter();
+
+    // Создаём метку
+    tempPlacemark = new ymaps.Placemark(center, {
+      iconCaption: 'Переместите метку',
+    }, {
+      draggable: true,
+      preset: 'islands#violetIcon'
+    });
+
+    mapInstance.geoObjects.add(tempPlacemark);
+  });
+});
+
+let circularRoute = null;
+
+let allPoints = null;
+
+
+
+
+function setPointsInstance(points) {
+  allPoints = points;
+}
+
+
+
+
+
+
+async function getOptimalCircularRoutePoints() {
+  if (!tempPlacemark) {
+    alert('Сначала установите временную точку на карте.');
+    return;
+  }
+
+  const targetDistance = parseFloat(document.getElementById('circular-distance').value) * 1000; // в метрах
+  const centerCoords = tempPlacemark.geometry.getCoordinates();
+
+  // Получаем тип маршрута из активной кнопки
+  const activeTypeBtn = document.querySelector('.route-btn.active');
+  const routingMode = activeTypeBtn?.dataset?.type || 'auto';
+
+  // Сортируем точки по расстоянию от центра (временной точки)
+  const sortedPoints = window.placemarks.map(item => {
+    const distance = ymaps.coordSystem.geo.getDistance(centerCoords, item.placemark.geometry.getCoordinates());
+    return {
+      point: item.pointData,
+      coords: item.placemark.geometry.getCoordinates(),
+      distance: distance
+    };
+  }).sort((a, b) => a.distance - b.distance);
+
+  let selectedCoords = [];
+  let routeLength = 0;
+
+  for (const item of sortedPoints) {
+    const testIntermediate = [...selectedCoords, item.coords];
+
+    if (testIntermediate.length < 2) {
+      // Нужно минимум две точки, чтобы можно было замкнуть маршрут
+      selectedCoords.push(item.coords);
+      continue;
+    }
+
+    const testCoords = [...testIntermediate, testIntermediate[0]]; // замыкаем на первую
+
+    try {
+      const multiRoute = new ymaps.multiRouter.MultiRoute({
+        referencePoints: testCoords,
+        params: {
+          routingMode
+        }
+      });
+
+      await new Promise(resolve => multiRoute.model.events.once('requestsuccess', resolve));
+      const activeRoute = multiRoute.getActiveRoute();
+
+      if (!activeRoute) continue;
+
+      const length = activeRoute.properties.get('distance')?.value;
+
+      if (length <= targetDistance) {
+        selectedCoords.push(item.coords);
+        routeLength = length;
+      } else {
+        break;
+      }
+    } catch (error) {
+      console.error("Ошибка при построении маршрута:", error);
+    }
+  }
+
+  if (selectedCoords.length < 2) {
+    console.warn("Недостаточно точек для кольцевого маршрута.");
+    return null;
+  }
+
+  // Финальный список координат: точка1 → точка2 → ... → точка1
+  const finalCoords = [...selectedCoords, selectedCoords[0]];
+
+  const selectedPoints = sortedPoints.filter(item =>
+    selectedCoords.some(c => c[0] === item.coords[0] && c[1] === item.coords[1])
+  ).map(item => item.point);
+
+  console.log(`Итоговая длина маршрута: ${(routeLength / 1000).toFixed(2)} км`);
+
+  return {
+    coords: finalCoords,
+    points: selectedPoints
+  };
+}
+
+
+
+
+function setupCircularRoute(){
+  document.getElementById('build-circular-route').addEventListener('click', async () => {
+    const result = await getOptimalCircularRoutePoints();
+    if (result) {
+      routePoints = result.coords.map(coords => ({ coords }));
+      drawCustomRoute();
+    }
+  });
 }

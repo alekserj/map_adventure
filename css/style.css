@@ -189,6 +189,10 @@ a {
     transition: background-color 0.3s, outline 0.3s, color 0.3s;
 }
 
+.circle{
+  width: 50%;
+}
+
 .view__form-btn_add-img{
   margin-top: 20px;
   margin-left: 5px;
@@ -213,7 +217,7 @@ a {
 
 .swiper-slide {
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: contain;
   background-position: center;
 }
 
@@ -646,6 +650,10 @@ a {
   outline: 1px solid black;
 }
 
+.admin-scroll{
+  margin-top: 0;
+}
+
 .view__form_reviews{
   display: flex;
   flex-direction: row;
@@ -861,4 +869,21 @@ a {
 .inf-scroll{
   margin: 0;
   outline: none;
+}
+
+.circular-route-block-btns{
+  display: flex;
+  justify-content: space-between;
+  padding-top: 24px;
+}
+
+.view__route-menu-scroll{
+  padding-bottom: 5px;
+  height: 520px;
+}
+
+.admin-application-scroll{
+  padding: 3px;
+  margin-bottom: 10px;
+  height: 100px;
 }
